@@ -359,9 +359,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				
 				// quick way of using equals instead of pattern matching
 				if (nodePattern.getVariables().isEmpty()) {
-				  @SuppressWarnings("unchecked")
-          Result<IValue> res = interpret((IEvaluator<Result<IValue>>) eval);
-				  return new LiteralPattern(eval, this, res.getValue());
+					@SuppressWarnings("unchecked")
+					Result<IValue> res = interpret((IEvaluator<Result<IValue>>) eval);
+					return new LiteralPattern(eval, this, res.getValue());
 				}
 				
         return nodePattern;
