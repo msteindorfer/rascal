@@ -60,6 +60,7 @@ import org.rascalmpl.interpreter.matching.GuardedPattern;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.ListPattern;
+import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.MatchResult;
 import org.rascalmpl.interpreter.matching.MultiVariablePattern;
 import org.rascalmpl.interpreter.matching.NegativePattern;
@@ -353,7 +354,17 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					cachedConstructorType  = computeConstructorType(eval, nameExpr);
 				}
 				 
-				return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), cachedConstructorType, visitArguments(eval));
+				
+				NodePattern nodePattern = new NodePattern(eval, this, null, nameExpr.getQualifiedName(), cachedConstructorType, visitArguments(eval));
+				
+				// quick way of using equals instead of pattern matching
+				if (nodePattern.getVariables().isEmpty()) {
+				  @SuppressWarnings("unchecked")
+          Result<IValue> res = interpret((IEvaluator<Result<IValue>>) eval);
+				  return new LiteralPattern(eval, this, res.getValue());
+				}
+				
+        return nodePattern;
 			}
 
 			return new NodePattern(eval, this, nameExpr.buildMatcher(eval), null, TF.nodeType(), visitArguments(eval));
