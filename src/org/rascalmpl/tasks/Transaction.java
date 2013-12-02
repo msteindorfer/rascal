@@ -403,6 +403,11 @@ IExpirationListener<IValue> {
 		throw new IllegalOperationException(
 				"Cannot be viewed as annotatable.", getType());
 	}
+	
+	@Override
+	public int fixedHashCode() {
+		return hashCode();
+	}
 }
 
 class Key {

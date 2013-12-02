@@ -136,4 +136,9 @@ public class LazySet implements ISet {
 				"Cannot be viewed as annotatable.", getType());
 	}
 	
+	@Override
+	public int fixedHashCode() {
+		return hashCode();
+	}
+	
 }

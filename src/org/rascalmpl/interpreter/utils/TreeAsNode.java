@@ -116,4 +116,8 @@ public IAnnotatable<? extends INode> asAnnotatable() {
 			"Cannot be viewed as annotatable.", getType());
 }
 
+@Override
+public int fixedHashCode() {
+	return hashCode();
+}
 }

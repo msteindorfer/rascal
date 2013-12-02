@@ -56,4 +56,9 @@ public abstract class ResourceResult extends Result<IValue> implements IExternal
 				"Cannot be viewed as annotatable.", getType());
 	}
 	
+	@Override
+	public int fixedHashCode() {
+		return hashCode();
+	}
+	
 }

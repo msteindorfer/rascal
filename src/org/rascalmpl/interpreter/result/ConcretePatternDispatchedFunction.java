@@ -134,8 +134,14 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public boolean isEqual(IValue other) {
-		return equals(other);
+	public boolean isEqual(IValue arg0) {
+		if(arg0 == null)
+			return false;
+		if (arg0.getClass() == getClass()) {
+			ConcretePatternDispatchedFunction other = (ConcretePatternDispatchedFunction) arg0;
+			return other.alternatives.equals(alternatives);
+		}
+		return false;
 	}
 	
 	@Override

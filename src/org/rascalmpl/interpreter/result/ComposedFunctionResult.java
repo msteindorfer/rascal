@@ -259,4 +259,9 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 				"Cannot be viewed as annotatable.", getType());
 	}
 	
+	@Override
+	public int fixedHashCode() {
+		return hashCode();
+	}
+	
 }

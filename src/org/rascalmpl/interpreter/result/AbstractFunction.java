@@ -452,6 +452,11 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
+	public int fixedHashCode() {
+		return hashCode();
+	}
+	
+	@Override
 	public boolean equals(Object obj) {
 		if(obj == null)
 			return false;

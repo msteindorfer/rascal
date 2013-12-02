@@ -161,6 +161,11 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			throw new IllegalOperationException(
 					"Cannot be viewed as annotatable.", getType());
 		}
+		
+		@Override
+		public int fixedHashCode() {
+			return hashCode();
+		}
 	}
 	
 	private class LexicalTreeAsTuple extends TreeAsTuple {

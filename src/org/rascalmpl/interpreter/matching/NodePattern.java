@@ -438,7 +438,12 @@ public class NodePattern extends AbstractMatchingResult {
 	public IAnnotatable<? extends INode> asAnnotatable() {
 		throw new IllegalOperationException(
 				"Cannot be viewed as annotatable.", getType());
-	}		
+	}
+	
+	@Override
+	public int fixedHashCode() {
+		return hashCode();
+	}
 	}
 }
 

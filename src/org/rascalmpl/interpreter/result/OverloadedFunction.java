@@ -398,6 +398,14 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override
+	public boolean isEqual(IValue other) {
+		if (other instanceof OverloadedFunction) {
+			return primaryCandidates.equals(((OverloadedFunction) other).primaryCandidates);
+		}
+		return false;
+	}
+	
+	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
 		for (AbstractFunction l : primaryCandidates) {
@@ -415,14 +423,6 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitExternal(this);
-	}
-
-	@Override
-	public boolean isEqual(IValue other) {
-		if (other instanceof OverloadedFunction) {
-			return primaryCandidates.equals(((OverloadedFunction) other).primaryCandidates);
-		}
-		return false;
 	}
 
 	@Override
@@ -517,6 +517,11 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	public IAnnotatable<? extends IValue> asAnnotatable() {
 		throw new IllegalOperationException(
 				"Cannot be viewed as annotatable.", getType());
+	}
+
+	@Override
+	public int fixedHashCode() {
+		return hashCode();
 	}
 	
 }
