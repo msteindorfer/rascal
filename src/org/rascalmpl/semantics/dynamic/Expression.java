@@ -358,13 +358,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				NodePattern nodePattern = new NodePattern(eval, this, null, nameExpr.getQualifiedName(), cachedConstructorType, visitArguments(eval));
 				
 				// quick way of using equals instead of pattern matching
-				if (nodePattern.getVariables().isEmpty()) {
-					@SuppressWarnings("unchecked")
-					Result<IValue> res = interpret((IEvaluator<Result<IValue>>) eval);
-					return new LiteralPattern(eval, this, res.getValue());
-				}
+//				if (nodePattern.getVariables().isEmpty()) {
+//					@SuppressWarnings("unchecked")
+//					Result<IValue> res = interpret((IEvaluator<Result<IValue>>) eval);
+//					return new LiteralPattern(eval, this, res.getValue());
+//				}
 				
-        return nodePattern;
+				return nodePattern;
 			}
 
 			return new NodePattern(eval, this, nameExpr.buildMatcher(eval), null, TF.nodeType(), visitArguments(eval));
