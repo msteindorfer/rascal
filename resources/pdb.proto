@@ -1,0 +1,33 @@
+option java_package = "org.eclipse.imp.pdb.facts.tracking";
+option java_outer_classname = "PDBProtocolBuffers";
+
+message BValue {
+	optional BType type    = 1;
+	optional bytes digest  = 2;
+	optional string name   = 3;
+	repeated BValue nested = 4;
+	repeated BAnnotation keywordArgs = 5;
+	repeated BAnnotation annotations = 6;
+
+	enum BType {
+		BOOL = 1;
+		INTEGER = 2;
+		RATIONAL = 3;
+		REAL = 4;
+		STRING = 5;
+		DATE_TIME = 6;
+		SOURCE_LOCATION = 7;
+		EXTERNAL_VALUE = 8;
+		LIST = 9;
+		MAP = 10;
+		SET = 11;
+		NODE = 12;
+		CONSTRUCTOR = 13;
+		TUPLE = 14;
+	}
+
+	message BAnnotation {
+		optional string name  = 1;
+		optional BValue value = 2;
+	}
+}

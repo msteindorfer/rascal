@@ -1,0 +1,32 @@
+option java_package = "org.eclipse.imp.pdb.facts.tracking";
+option java_outer_classname = "TrackingProtocolBuffers";
+
+message ObjectLifetime {
+	required int64 tag = 1;
+	optional string digest = 2;
+	required int64 ctorTime = 3;
+	optional int64 dtorTime = 4;
+	optional int64 measuredSizeInBytes = 5;
+	optional int32 recursiveReferenceEqualitiesEstimate = 6;
+	optional int64 hashTableOverhead = 7;
+	optional bool isRedundant = 8;
+	optional int32 deepReferenceEqualityEstimate = 9;
+}
+
+message EqualsRelation {
+	optional int64 tag1 = 1; // used to be required
+	optional int64 tag2 = 2; // used to be required	
+	optional bool result = 3;
+	optional int32 deepCount = 4; // number of calls to equals in deep callstack (including top level call)
+	required int64 timestamp = 5;
+	optional int64 deepTime = 6;
+	optional bool isHashLookup = 7;
+	optional int32 deepReferenceEqualityCount = 8; // number of reference equality checks in deep callstack (including top level call)
+	optional bool isStructuralEquality = 9;
+}
+
+message TagMap {
+	required int64 tag = 1;
+	required string digest = 2;
+	optional string classname = 3;	
+}
