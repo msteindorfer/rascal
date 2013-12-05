@@ -57,7 +57,7 @@ public aspect ObjectLifetimeTracking {
 	
 	volatile boolean doLog = true;
 
-	static final boolean logCacheBehavior = true;
+	static final boolean logCacheBehavior = false;
 	static final boolean logRootEqualsSummary = false;
 	
 	static final boolean logEqualsCallInsideAdvice = false;
@@ -130,11 +130,7 @@ public aspect ObjectLifetimeTracking {
 				call(org.eclipse.imp.pdb.facts.IValue+.new(..)) 
 				&& !call(org.eclipse.imp.pdb.facts.IExternalValue+.new(..))
 				&& !call(org.eclipse.imp.pdb.facts.impl.primitive.BoolValue.*.new(..))
-		)
-//		&& !call(org.eclipse.imp.pdb.facts.ITuple+.new(..))		
-//		&& cflow(execution(void org.eclipse.imp.pdb.values.benchmarks.RelationBenchmark.timeClosure()));
-		;//&& !within(org.rascalmpl.parser.ParserGenerator);
-
+		);
 	
 //	Object around() : allocationWithFactory() {
 	Object around() : allocationWithConstructor() {
@@ -247,8 +243,8 @@ public aspect ObjectLifetimeTracking {
 					/*		
 					 * Measure Additional Memory Consumption (Expensive)
 					 */
-					allocationRecBldr.setMeasuredSizeInBytes(1);
-//					allocationRecBldr.setMeasuredSizeInBytes(measureObjectSize(newObject));
+//					allocationRecBldr.setMeasuredSizeInBytes(1);
+					allocationRecBldr.setMeasuredSizeInBytes(measureObjectSize(newObject));
 
 					if (!isSharingEnabled) {						
 						allocationRecBldr.setRecursiveReferenceEqualitiesEstimate(
@@ -267,7 +263,7 @@ public aspect ObjectLifetimeTracking {
 				// Allocation record
 				allocationRecBldr
 					.build()
-					.writeDelimitedTo(outputStream);		
+					.writeDelimitedTo(outputStream);
 
 				// [print] the object
 //				System.out.println(newObject);
@@ -381,7 +377,7 @@ public aspect ObjectLifetimeTracking {
 	 */				
 	public static aspect InnerEqualsInstanceTracker percflow(call(* ObjectLifetimeTracking.getFromObjectPool(..))){
 		
-		long innerEqualsID = equalsIDCounter.getAndIncrement();
+		long innerEqualsID = equalityIDCounter.getAndIncrement();
 		
 		int deepEqualsCount = 1;
 		int deepReferenceEqualityCount = 0;
@@ -390,14 +386,12 @@ public aspect ObjectLifetimeTracking {
 		
 		pointcut equalsInsideAdvice() : ( 
 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..)) 
-//				|| execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.isEqual(..))
 			);
 
 		pointcut topEqualsInsideAdvice() : if(isSharingEnabled) && equalsInsideAdvice() && !cflowbelow(equalsInsideAdvice());
 		
 		pointcut lowerEqualsCallInsideAdvice() : cflowbelow(equalsInsideAdvice()) && ( 
 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..)) 
-//				|| execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.isEqual(..))
 			);
 		
 		boolean around(Object v1, Object v2) : topEqualsInsideAdvice() && target(v1) && args(v2) {		
@@ -499,51 +493,111 @@ public aspect ObjectLifetimeTracking {
 	/*
 	 * equals(..) call tracking in program
 	 */	
-	static AtomicLong equalsIDCounter = new AtomicLong(1);
+	static AtomicLong equalityIDCounter = new AtomicLong(1);
 	
-	public static aspect EqualsInstanceTracker percflow(topEqualsOutsideAdvice()) {
+	public static aspect EqualsInstanceTracker percflow(topEqualsOutsideAdvice() || topIsEqualOutsideAdvice()) {
 		
-		long outerEqualsID = equalsIDCounter.getAndIncrement();
+		long outerEqualityID = equalityIDCounter.getAndIncrement();
 		
-		int deepEqualsCount = 0;
+		int deepEqualityCount = 0;
 		int deepReferenceEqualityCount = 0;
 		
 		pointcut equalsOutsideAdvice() : ( 
-				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..)) 
-//				|| execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.isEqual(..))
-			);
-
+				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..))
+				);
+		
 		pointcut topEqualsOutsideAdvice() : !cflow(adviceexecution()) && equalsOutsideAdvice() && !cflowbelow(equalsOutsideAdvice());
 		
 		pointcut lowerEqualsCallOutsideAdvice() : cflowbelow(equalsOutsideAdvice()) && ( 
 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..)) 
-//				|| execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.isEqual(..))
-			);
+				);
+
+		pointcut lowerEqualsCallBelowIsEqual() : cflowbelow(isEqualOutsideAdvice()) && ( 
+				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..)) 
+				);
+		
+		pointcut isEqualOutsideAdvice() : ( 
+				execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.isEqual(..))
+				);	
+
+		pointcut topIsEqualOutsideAdvice() : !cflow(adviceexecution()) && isEqualOutsideAdvice() && !cflowbelow(isEqualOutsideAdvice());
+
+		pointcut lowerIsEqualCallOutsideAdvice() : cflowbelow(isEqualOutsideAdvice()) && ( 
+ 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.isEqual(..))
+				);
+		
+		pointcut lowerIsEqualCallBelowEquals() : cflowbelow(equalsOutsideAdvice()) && ( 
+ 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.isEqual(..))
+				);		
 		
 		boolean around(Object v1, Object v2) : topEqualsOutsideAdvice() && target(v1) && args(v2) {		
 			boolean result;
-			long timestamp = BCITracker.getCount(); // previously getAndIncrementCount();
-			
-			long startTime = System.nanoTime();
-						
+			long timestamp = BCITracker.getCount();
+								
 			if (isSharingEnabled) {	
-//				if (v1 instanceof Constructor && v2 instanceof AnnotatedConstructorFacade) {
-//					result = (v1 == ((AnnotatedConstructorFacade)v2).getContent());
-//				} else if (v2 instanceof Constructor && v1 instanceof AnnotatedConstructorFacade) {
-//					result = (v2 == ((AnnotatedConstructorFacade)v1).getContent());
-//				} else {	
-					result = (v1 == v2);
-//				}
+				result = (v1 == v2);
 				// Book keeping
 				deepReferenceEqualityCount++;
 			} else {
 				result = proceed(v1, v2);
 				// Book keeping
-				deepEqualsCount++;
-			}
+				deepEqualityCount++;
+			}			
 			
-			long stopTime = System.nanoTime();
+			writeTrace(timestamp, v1, v2, result, true);
 			
+			// Bottom-up printing
+//			if (!result)
+//			printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, result, v1, v2);
+			return result;
+		}	
+		
+		boolean around(Object v1, Object v2) : lowerEqualsCallOutsideAdvice() && target(v1) && args(v2) {			
+			assert(!isSharingEnabled);
+
+			boolean result = proceed(v1, v2);
+
+			// Book keeping
+			deepEqualityCount++;
+			
+			// Bottom-up printing
+//			if (!result)
+//			printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, result, v1, v2);
+			return result;
+		}
+		
+		boolean around(Object v1, Object v2) : topIsEqualOutsideAdvice() && target(v1) && args(v2) {		
+			long timestamp = BCITracker.getCount();
+			boolean result = proceed(v1, v2);
+
+			// Book keeping
+			deepEqualityCount++;
+			
+			writeTrace(timestamp, v1, v2, result, false);
+			
+			// Bottom-up printing
+//			if (!result)
+//			printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, result, v1, v2);
+			return result;
+		}	
+		
+		boolean around(Object v1, Object v2) : lowerIsEqualCallOutsideAdvice() && target(v1) && args(v2) {			
+			boolean result = proceed(v1, v2);
+
+			// Book keeping
+			deepEqualityCount++;
+			
+			// Bottom-up printing
+//			if (!result)
+//			printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, result, v1, v2);
+			return result;
+		}		
+			
+		before() : lowerEqualsCallBelowIsEqual() || lowerIsEqualCallBelowEquals() {
+			assert(false);
+		}
+		
+		void writeTrace(long timestamp, Object v1, Object v2, boolean result, boolean isStructuralEquality) {
 			// Serialize to file (only top level call with deepCount that
 			// include subordinate equals calls) 
 			try {
@@ -552,9 +606,9 @@ public aspect ObjectLifetimeTracking {
 //				.setTag1(BCITracker.getTag(v1))
 //				.setTag2(BCITracker.getTag(v2))
 				.setResult(result)
-				.setDeepCount(deepEqualsCount)
+				.setIsStructuralEquality(isStructuralEquality)
+				.setDeepCount(deepEqualityCount)
 				.setDeepReferenceEqualityCount(deepReferenceEqualityCount)
-				.setDeepTime(stopTime - startTime)
 				.build();
 				
 				// write & log
@@ -567,44 +621,25 @@ public aspect ObjectLifetimeTracking {
 				
 			} catch (Exception e) {
 				e.printStackTrace();
-			}			
-			
-			// Bottom-up printing
-//			if (!result)
-//			printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, result, v1, v2);
-			return result;
-		}	
-		
-		boolean around(Object v1, Object v2) : lowerEqualsCallOutsideAdvice() && target(v1) && args(v2) {			
-			assert (!isSharingEnabled);
-
-			boolean result = proceed(v1, v2);
-
-			// Book keeping
-			deepEqualsCount++;
-			
-			// Bottom-up printing
-//			if (!result)
-//			printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, result, v1, v2);
-			return result;
+			}
 		}
-	
+		
 		void printInfo(JoinPoint thisJP, JoinPoint.StaticPart enclosingJPSP, boolean result, Object v1, Object v2) {
 			byte[] h1 = hashWriter.calculateHash((IValue) v1);
 			byte[] h2 = hashWriter.calculateHash((IValue) v2);	
 			
-			System.out.println(String.format(outerEqualsID + "[CLASS CMP] %s equals %s == %b", v1.getClass().getCanonicalName(), v2.getClass().getCanonicalName(), result));
-			System.out.println(String.format(outerEqualsID + "[HASH  CMP] %s equals %s == %b", toHexString(h1), toHexString(h2), result));
-			System.out.println(String.format(outerEqualsID + "[VALUE CMP] %s equals %s == %b", v1, v2, result));
-			System.out.println(String.format(outerEqualsID + "[HASHC CMP] %d equals %d == %b", v1.hashCode(), v2.hashCode(), result));
-//			System.out.println(String.format(outerEqualsID + "[ ID   CMP] %d equals %d == %b", System.identityHashCode(v1), System.identityHashCode(v2), result));	
+			System.out.println(String.format(outerEqualityID + "[CLASS CMP] %s equals %s == %b", v1.getClass().getCanonicalName(), v2.getClass().getCanonicalName(), result));
+			System.out.println(String.format(outerEqualityID + "[HASH  CMP] %s equals %s == %b", toHexString(h1), toHexString(h2), result));
+			System.out.println(String.format(outerEqualityID + "[VALUE CMP] %s equals %s == %b", v1, v2, result));
+			System.out.println(String.format(outerEqualityID + "[HASHC CMP] %d equals %d == %b", v1.hashCode(), v2.hashCode(), result));
+//			System.out.println(String.format(outerEqualityID + "[ ID   CMP] %d equals %d == %b", System.identityHashCode(v1), System.identityHashCode(v2), result));	
 //			
-//			System.out.println(String.format(outerEqualsID + "[FROM...TO] %s -> %s", 
+//			System.out.println(String.format(outerEqualityID + "[FROM...TO] %s -> %s", 
 //					enclosingJPSP.getSignature().getDeclaringType().getSimpleName(),
 //					v1.getClass().getSimpleName()));		
 			System.out.println();
 		}
 		
 	}
-	
+
 }
