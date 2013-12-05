@@ -6,6 +6,14 @@ Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
 Bundle-Version: 0.6.2.qualifier
 Export-Package: 
+ org.eclipse.imp.pdb.facts,
+ org.eclipse.imp.pdb.facts.exceptions,
+ org.eclipse.imp.pdb.facts.impl,
+ org.eclipse.imp.pdb.facts.impl.fast,
+ org.eclipse.imp.pdb.facts.impl.primitive,
+ org.eclipse.imp.pdb.facts.io,
+ org.eclipse.imp.pdb.facts.type,
+ org.eclipse.imp.pdb.facts.visitors,
  org.rascalmpl.ast,
  org.rascalmpl.checker,
  org.rascalmpl.interpreter,
@@ -71,8 +79,7 @@ Export-Package:
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors,
  org.yaml.snakeyaml
-Require-Bundle: org.eclipse.imp.pdb.values,
- org.eclipse.swt,
+Require-Bundle: org.eclipse.swt,
  org.jdom,
  org.objectweb.asm;bundle-version="4.0.0",
  org.apache.commons.math,
@@ -88,7 +95,8 @@ Require-Bundle: org.eclipse.imp.pdb.values,
  org.eclipse.jetty.continuation,
  com.ibm.icu,
  org.junit,
- org.eclipse.jdt.core
+ org.eclipse.jdt.core,
+ org.aspectj.runtime
 Import-Package: javax.servlet,
  javax.servlet.http,
  org.apache.commons.math.optimization,

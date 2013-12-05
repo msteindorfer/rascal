@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aspectj>
+	<aspects>
+		<aspect name="org.eclipse.imp.pdb.facts.tracking.UniverseRehash"/>
+		<aspect name="org.eclipse.imp.pdb.facts.tracking.ObjectLifetimeTracking"/>
+		<aspect name="org.eclipse.imp.pdb.facts.tracking.ObjectLifetimeTracking.InnerEqualsInstanceTracker"/>
+		<aspect name="org.eclipse.imp.pdb.facts.tracking.ObjectLifetimeTracking.EqualsInstanceTracker"/>
+		<aspect name="org.eclipse.imp.pdb.facts.tracking.InTimeTracking"/>
+	</aspects>
+</aspectj>

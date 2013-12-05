@@ -1,3 +1,6 @@
+# mac os stuff
+.DS_Store
+
 # eclipse stuff
 .metadata
 bin/**
@@ -14,13 +17,3 @@ local.properties
 
 # maven stuff
 target/
-bin/
-/bin
-/bin
-/bin
-/bin
-/bin
-/bin
-/bin
-
-.DS_Store
