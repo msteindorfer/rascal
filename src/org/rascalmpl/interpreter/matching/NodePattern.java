@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
@@ -338,7 +339,7 @@ public class NodePattern extends AbstractMatchingResult {
 		return res.toString();
 	}
 	
-	private class TreeAsNode implements INode {
+	private class TreeAsNode implements INode, IExternalValue {
 	  private final String name;
     private final IList args;
 

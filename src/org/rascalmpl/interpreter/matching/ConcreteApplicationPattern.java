@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -65,7 +66,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		return tupleMatcher.getVariables();
 	}
 	
-	private class TreeAsTuple implements ITuple {
+	private class TreeAsTuple implements ITuple, IExternalValue {
 		// notice how this class skips the layout nodes...
 		
 		public int arity() {

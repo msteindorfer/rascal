@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -14,7 +15,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class TreeAsNode implements INode {
+public class TreeAsNode implements INode, IExternalValue {
   private final String name;
   private final IList args;
 

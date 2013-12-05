@@ -10,6 +10,7 @@ package org.rascalmpl.library.experiments.resource.results.buffers;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -19,7 +20,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
-public class LazyList implements IList {
+public class LazyList implements IList, IExternalValue {
 
 	private final int bufferSize;
 	private ILazyFiller filler;
