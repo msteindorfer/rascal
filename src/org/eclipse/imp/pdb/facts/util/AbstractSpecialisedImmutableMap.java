@@ -107,7 +107,7 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 							return false;
 						Object a = e.getValue();
 						Object b = that.get(e.getKey());
-						if (!((a == b) || (a != null && a.equals(b))))
+						if (!(a != null && a.equals(b)))
 							return false;
 					}
 					return true;
