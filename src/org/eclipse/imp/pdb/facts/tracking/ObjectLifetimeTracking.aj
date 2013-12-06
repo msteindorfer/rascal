@@ -39,7 +39,7 @@ public aspect ObjectLifetimeTracking {
 
 	static boolean isSharingEnabled = System.getProperties().containsKey("sharingEnabled");
 
-	static enum TrackingMode {
+	public static enum TrackingMode {
 		PROFILE_HASH_SIG,
 		PROFILE_FULL_SIG, // equals TrackingMode.SAMPLE && SAMPLE_FREQUENCY == 1;
 		SAMPLE
@@ -72,6 +72,14 @@ public aspect ObjectLifetimeTracking {
 	static long cacheHitCount = 0;	
 	static long cacheMissCount = 0;
 	static long cacheRaceCount = 0;
+	
+	
+	public static enum EqualsOnAliasMode {
+		EMIT_WARNING,
+		COUNT_AS_REFERENCE_EQUALITY
+	}
+	
+	static EqualsOnAliasMode equalsOnAliasMode = EqualsOnAliasMode.EMIT_WARNING;
 	
 	static OutputStream outputStream;
 	static OutputStream equalsRelationOutputStream;
@@ -506,8 +514,11 @@ public aspect ObjectLifetimeTracking {
 		
 		long outerEqualityID = equalityIDCounter.getAndIncrement();
 		
-		int deepEqualityCount = 0;
-		int deepReferenceEqualityCount = 0;
+		final int initialDeepEqualityCount = 0;
+		final int initialDeepReferenceEqualityCount = 0;
+		
+		int deepEqualityCount = initialDeepEqualityCount;
+		int deepReferenceEqualityCount = initialDeepReferenceEqualityCount;
 		
 		pointcut equalsOutsideAdvice() : ( 
 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..))
@@ -547,7 +558,7 @@ public aspect ObjectLifetimeTracking {
 				printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, v1, v2);
 			}	
 			
-			if (isSharingEnabled) {	
+			if (isSharingEnabled || v1 == v2 && equalsOnAliasMode == EqualsOnAliasMode.COUNT_AS_REFERENCE_EQUALITY) {
 				result = (v1 == v2);
 				// Book keeping
 				deepReferenceEqualityCount++;
@@ -555,6 +566,10 @@ public aspect ObjectLifetimeTracking {
 				result = proceed(v1, v2);
 				// Book keeping
 				deepEqualityCount++;
+			
+				if (v1 == v2 && equalsOnAliasMode == EqualsOnAliasMode.EMIT_WARNING && (deepEqualityCount != initialDeepEqualityCount + 1 || deepReferenceEqualityCount != initialDeepReferenceEqualityCount)) {
+					logger.warning(String.format("Class does not fast-fail on reference equality: %s", v1.getClass().getName()));
+				}
 			}			
 			
 			writeTrace(timestamp, v1, v2, result, true);
@@ -573,11 +588,25 @@ public aspect ObjectLifetimeTracking {
 				logger.finest("[equalsCallInOutsideAdvice]");
 				printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, v1, v2);
 			}				
-			
-			boolean result = proceed(v1, v2);
 
-			// Book keeping
-			deepEqualityCount++;
+			boolean result;
+			
+			if (v1 == v2 && equalsOnAliasMode == EqualsOnAliasMode.COUNT_AS_REFERENCE_EQUALITY) {
+				result = (v1 == v2);
+				// Book keeping
+				deepReferenceEqualityCount++;
+			} else {
+				final long oldDeepEqualityCount = deepEqualityCount;
+				final long oldDeepReferenceEqualityCount = deepReferenceEqualityCount;
+				
+				result = proceed(v1, v2);
+				// Book keeping
+				deepEqualityCount++;
+			
+				if (v1 == v2 && equalsOnAliasMode == EqualsOnAliasMode.EMIT_WARNING && (deepEqualityCount != oldDeepEqualityCount + 1 || deepReferenceEqualityCount != oldDeepReferenceEqualityCount)) {
+					logger.warning(String.format("Class does not fast-fail on reference equality: %s", v1.getClass().getName()));
+				}
+			}
 			
 			// Bottom-up printing
 //			if (!result)
