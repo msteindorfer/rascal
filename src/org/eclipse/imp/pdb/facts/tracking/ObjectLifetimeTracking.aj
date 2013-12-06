@@ -389,7 +389,7 @@ public aspect ObjectLifetimeTracking {
 	/*
 	 * equals(..) call tracking in aspect
 	 */				
-	public static aspect InnerEqualsInstanceTracker percflow(call(* ObjectLifetimeTracking.getFromObjectPool(..))){
+	public static aspect InnerEqualsInstanceTracker percflow(topEqualsInsideAdvice()){
 		
 		long innerEqualsID = equalityIDCounter.getAndIncrement();
 		
@@ -402,7 +402,7 @@ public aspect ObjectLifetimeTracking {
 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..)) 
 			);
 
-		pointcut topEqualsInsideAdvice() : if(isSharingEnabled) && equalsInsideAdvice() && !cflowbelow(equalsInsideAdvice());
+		pointcut topEqualsInsideAdvice() : cflow(adviceexecution()) && equalsInsideAdvice() && !cflowbelow(equalsInsideAdvice());
 		
 		pointcut lowerEqualsCallInsideAdvice() : cflowbelow(equalsInsideAdvice()) && ( 
 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..)) 
