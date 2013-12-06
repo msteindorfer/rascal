@@ -63,6 +63,12 @@ public aspect ObjectLifetimeTracking {
 	static final boolean logEqualsCallInsideAdvice = false;
 	static final boolean logEqualsCallInInsideAdvice = false;
 	
+	static final boolean logEqualsCallOutsideAdvice = false;
+	static final boolean logEqualsCallInOutsideAdvice = false;
+
+	static final boolean logIsEqualCallOutsideAdvice = false;
+	static final boolean logIsEqualCallInOutsideAdvice = false;
+	
 	static long cacheHitCount = 0;	
 	static long cacheMissCount = 0;
 	static long cacheRaceCount = 0;
@@ -533,7 +539,13 @@ public aspect ObjectLifetimeTracking {
 		boolean around(Object v1, Object v2) : topEqualsOutsideAdvice() && target(v1) && args(v2) {		
 			boolean result;
 			long timestamp = BCITracker.getCount();
-								
+			
+			// Top-down printing
+			if (logEqualsCallOutsideAdvice) {
+				logger.finest("[equalsCallOutsideAdvice]");
+				printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, v1, v2);
+			}	
+			
 			if (isSharingEnabled) {	
 				result = (v1 == v2);
 				// Book keeping
@@ -555,6 +567,12 @@ public aspect ObjectLifetimeTracking {
 		boolean around(Object v1, Object v2) : lowerEqualsCallOutsideAdvice() && target(v1) && args(v2) {			
 			assert(!isSharingEnabled);
 
+			// Top-down printing
+			if (logEqualsCallInOutsideAdvice) {
+				logger.finest("[equalsCallInOutsideAdvice]");
+				printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, v1, v2);
+			}				
+			
 			boolean result = proceed(v1, v2);
 
 			// Book keeping
@@ -567,6 +585,12 @@ public aspect ObjectLifetimeTracking {
 		}
 		
 		boolean around(Object v1, Object v2) : topIsEqualOutsideAdvice() && target(v1) && args(v2) {		
+			// Top-down printing
+			if (logIsEqualCallOutsideAdvice) {
+				logger.finest("[isEqualCallOutsideAdvice]");
+				printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, v1, v2);
+			}	
+			
 			long timestamp = BCITracker.getCount();
 			boolean result = proceed(v1, v2);
 
@@ -582,6 +606,12 @@ public aspect ObjectLifetimeTracking {
 		}	
 		
 		boolean around(Object v1, Object v2) : lowerIsEqualCallOutsideAdvice() && target(v1) && args(v2) {			
+			// Top-down printing
+			if (logIsEqualCallInOutsideAdvice) {
+				logger.finest("[isEqualCallInOutsideAdvice]");
+				printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, v1, v2);
+			}	
+
 			boolean result = proceed(v1, v2);
 
 			// Book keeping
@@ -624,15 +654,15 @@ public aspect ObjectLifetimeTracking {
 			}
 		}
 		
-		void printInfo(JoinPoint thisJP, JoinPoint.StaticPart enclosingJPSP, boolean result, Object v1, Object v2) {
+		void printInfo(JoinPoint thisJP, JoinPoint.StaticPart enclosingJPSP, Object v1, Object v2) {
 			byte[] h1 = hashWriter.calculateHash((IValue) v1);
 			byte[] h2 = hashWriter.calculateHash((IValue) v2);	
 			
-			System.out.println(String.format(outerEqualityID + "[CLASS CMP] %s equals %s == %b", v1.getClass().getCanonicalName(), v2.getClass().getCanonicalName(), result));
-			System.out.println(String.format(outerEqualityID + "[HASH  CMP] %s equals %s == %b", toHexString(h1), toHexString(h2), result));
-			System.out.println(String.format(outerEqualityID + "[VALUE CMP] %s equals %s == %b", v1, v2, result));
-			System.out.println(String.format(outerEqualityID + "[HASHC CMP] %d equals %d == %b", v1.hashCode(), v2.hashCode(), result));
-//			System.out.println(String.format(outerEqualityID + "[ ID   CMP] %d equals %d == %b", System.identityHashCode(v1), System.identityHashCode(v2), result));	
+			System.out.println(String.format(outerEqualityID + "[CLASS CMP] %s equals %s == %b", v1.getClass().getCanonicalName(), v2.getClass().getCanonicalName(), v1.getClass().getCanonicalName().equals(v2.getClass().getCanonicalName())));
+			System.out.println(String.format(outerEqualityID + "[HASH  CMP] %s equals %s == %b", toHexString(h1), toHexString(h2), toHexString(h1).equals(toHexString(h2))));
+			System.out.println(String.format(outerEqualityID + "[VALUE CMP] %s equals %s == %s", v1, v2, "???"));
+			System.out.println(String.format(outerEqualityID + "[HASHC CMP] %d equals %d == %b", v1.hashCode(), v2.hashCode(), v1.hashCode() == v2.hashCode()));
+			System.out.println(String.format(outerEqualityID + "[ ID   CMP] %d equals %d == %b", System.identityHashCode(v1), System.identityHashCode(v2), System.identityHashCode(v1) == System.identityHashCode(v2)));	
 //			
 //			System.out.println(String.format(outerEqualityID + "[FROM...TO] %s -> %s", 
 //					enclosingJPSP.getSignature().getDeclaringType().getSimpleName(),
