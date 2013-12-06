@@ -434,6 +434,7 @@ public aspect ObjectLifetimeTracking {
 				.setDeepReferenceEqualityCount(deepReferenceEqualityCount)
 //				.setDeepTime(stopTime - startTime)
 				.setIsHashLookup(true)
+				.setIsStructuralEquality(true)
 				.build();
 				
 				// write & log
