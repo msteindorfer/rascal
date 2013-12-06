@@ -105,7 +105,9 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 					for (Entry<K, V> e : this.entrySet()) {
 						if (!that.containsKey(e.getKey()))
 							return false;
-						if (!Objects.equals(e.getValue(), that.get(e.getKey())))
+						Object a = e.getValue();
+						Object b = that.get(e.getKey());
+						if (!((a == b) || (a != null && a.equals(b))))
 							return false;
 					}
 					return true;
