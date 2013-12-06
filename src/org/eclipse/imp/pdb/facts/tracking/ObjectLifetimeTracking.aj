@@ -79,7 +79,7 @@ public aspect ObjectLifetimeTracking {
 		COUNT_AS_REFERENCE_EQUALITY
 	}
 	
-	static EqualsOnAliasMode equalsOnAliasMode = EqualsOnAliasMode.EMIT_WARNING;
+	static EqualsOnAliasMode equalsOnAliasMode = EqualsOnAliasMode.COUNT_AS_REFERENCE_EQUALITY;
 	
 	static OutputStream outputStream;
 	static OutputStream equalsRelationOutputStream;
