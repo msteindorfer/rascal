@@ -13,6 +13,21 @@
 	<version>0.6.2.qualifier</version>
 	<packaging>eclipse-plugin</packaging>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<aspectj.version>1.7.3</aspectj.version>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>aspectj</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/tools/ajdt/42/dev/update</url>
+		</repository>
+	</repositories>
+
 	<scm>
 		<developerConnection>scm:git:https://github.com/cwi-swat/rascal.git</developerConnection>
 	</scm>
@@ -51,7 +66,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.12.4</version>
+				<version>2.15</version>
 				<executions>
 					<execution>
 						<id>test</id>
@@ -62,25 +77,91 @@
 					</execution>
 				</executions>
 				<configuration>
-					<argLine>
-						-Xmx1g
+					<argLine>					
+						-agentpath:/Users/Michael/Development/Data-Driven-Relations/libjvmbmon.dylib
+						-javaagent:/Users/Michael/.m2/repository/com/google/memory-measurer/1.0-SNAPSHOT/memory-measurer-1.0-SNAPSHOT.jar
+						-Xbootclasspath/a:/Users/Michael/.m2/repository/nl/cwi/jvmbmon/jvmbmon-native/0.0.1/jvmbmon-native-0.0.1.jar
+						-Xmx4g
 						-Xss128m
 					</argLine>
 					<includes>
 						<include>**/org/rascalmpl/test/AllSuite.java</include>
 					</includes>
+					<forkCount>1</forkCount>
+        			<reuseForks>false</reuseForks>					
 				</configuration>
+			</plugin>
+					
+			<!--
+				AspectJ Maven Plugin
+				http://eclipsesource.com/blogs/2011/07/13/building-osgi-applications-that-use-aspectj-with-tycho-maven-3/
+				http://mojo.codehaus.org/aspectj-maven-plugin/
+			-->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>aspectj-maven-plugin</artifactId>
+				<version>1.5</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.aspectj</groupId>
+						<artifactId>aspectjrt</artifactId>
+						<version>${aspectj.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.aspectj</groupId>
+						<artifactId>aspectjtools</artifactId>
+						<version>${aspectj.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-utils</artifactId>
+						<version>3.0.10</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<verbose>true</verbose>
+					<complianceLevel>${maven.compiler.target}</complianceLevel>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
+				</configuration>				
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>       <!-- use this goal to weave all your main classes -->
+							<!-- <goal>test-compile</goal> -->  <!-- use this goal to weave all your test classes -->
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
 
-	<!-- Used to trigger upstream projects in Jenkins  -->
 	<dependencies>
 		<dependency>
-			<groupId>org.eclipse.imp</groupId>
-			<artifactId>org.eclipse.imp.pdb.values</artifactId>
-			<version>0.4.1.qualifier</version>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>2.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>14.0.1</version>
+		</dependency> 
+		<dependency>
+			<groupId>com.google</groupId>
+			<artifactId>memory-measurer</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>nl.cwi.jvmbmon</groupId>
+			<artifactId>jvmbmon-native</artifactId>
+			<version>0.0.1</version>		        
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${aspectj.version}</version>
 		</dependency>
 	</dependencies>
-
+	
 </project>
