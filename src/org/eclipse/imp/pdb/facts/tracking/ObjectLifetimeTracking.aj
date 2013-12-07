@@ -144,6 +144,7 @@ public aspect ObjectLifetimeTracking {
 				call(org.eclipse.imp.pdb.facts.IValue+.new(..)) 
 				&& !call(org.eclipse.imp.pdb.facts.IExternalValue+.new(..))
 				&& !call(org.eclipse.imp.pdb.facts.impl.primitive.BoolValue.*.new(..))
+				&& !call(org.rascalmpl.interpreter.result.ICallableValue+.new(..))
 		);
 	
 //	Object around() : allocationWithFactory() {
@@ -399,13 +400,17 @@ public aspect ObjectLifetimeTracking {
 //		boolean firstEntrance = true;
 		
 		pointcut equalsInsideAdvice() : ( 
-				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..)) 
+				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) 
+				&& !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..))
+				&& !execution(boolean org.rascalmpl.interpreter.result.ICallableValue+.equals(..))
 			);
 
 		pointcut topEqualsInsideAdvice() : cflow(adviceexecution()) && equalsInsideAdvice() && !cflowbelow(equalsInsideAdvice());
 		
 		pointcut lowerEqualsCallInsideAdvice() : cflowbelow(equalsInsideAdvice()) && ( 
-				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..)) 
+				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) 
+				&& !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..))
+				&& !execution(boolean org.rascalmpl.interpreter.result.ICallableValue+.equals(..))
 			);
 		
 		boolean around(Object v1, Object v2) : topEqualsInsideAdvice() && target(v1) && args(v2) {		
@@ -521,32 +526,44 @@ public aspect ObjectLifetimeTracking {
 		int deepReferenceEqualityCount = initialDeepReferenceEqualityCount;
 		
 		pointcut equalsOutsideAdvice() : ( 
-				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..))
-				);
+				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) 
+				&& !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..))
+				&& !execution(boolean org.rascalmpl.interpreter.result.ICallableValue+.equals(..))
+			);
 		
 		pointcut topEqualsOutsideAdvice() : !cflow(adviceexecution()) && equalsOutsideAdvice() && !cflowbelow(equalsOutsideAdvice());
 		
 		pointcut lowerEqualsCallOutsideAdvice() : cflowbelow(equalsOutsideAdvice()) && ( 
-				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..)) 
-				);
+				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) 
+				&& !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..))
+				&& !execution(boolean org.rascalmpl.interpreter.result.ICallableValue+.equals(..))
+			);
 
 		pointcut lowerEqualsCallBelowIsEqual() : cflowbelow(isEqualOutsideAdvice()) && ( 
-				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..)) 
-				);
+				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) 
+				&& !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..))
+				&& !execution(boolean org.rascalmpl.interpreter.result.ICallableValue+.equals(..))
+			);
 		
 		pointcut isEqualOutsideAdvice() : ( 
-				execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.isEqual(..))
-				);	
+				execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) 
+				&& !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.isEqual(..))
+				&& !execution(boolean org.rascalmpl.interpreter.result.ICallableValue+.equals(..))
+			);	
 
 		pointcut topIsEqualOutsideAdvice() : !cflow(adviceexecution()) && isEqualOutsideAdvice() && !cflowbelow(isEqualOutsideAdvice());
 
 		pointcut lowerIsEqualCallOutsideAdvice() : cflowbelow(isEqualOutsideAdvice()) && ( 
- 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.isEqual(..))
-				);
+ 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) 
+ 				&& !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.isEqual(..))
+				&& !execution(boolean org.rascalmpl.interpreter.result.ICallableValue+.equals(..))
+			);
 		
 		pointcut lowerIsEqualCallBelowEquals() : cflowbelow(equalsOutsideAdvice()) && ( 
- 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) && !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.isEqual(..))
-				);		
+ 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) 
+ 				&& !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.isEqual(..))
+				&& !execution(boolean org.rascalmpl.interpreter.result.ICallableValue+.equals(..))
+			);		
 		
 		boolean around(Object v1, Object v2) : topEqualsOutsideAdvice() && target(v1) && args(v2) {		
 			boolean result;

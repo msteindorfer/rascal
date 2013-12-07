@@ -436,7 +436,10 @@ public class HashWriter {
 		}
 
 		public ByteArray visitExternal(IExternalValue o) throws IOException {
-			return new ByteArray(toHashByteArray(o));
+			final String location = "HashStringWriter.visitExternal(IExternalValue o)";
+			throw new RuntimeException(String.format(
+					"Class: %s\nValue: %s\nLocation: %s\n", o.getClass()
+							.getName(), o, location));
 		}
 
 		public ByteArray visitDateTime(IDateTime o) throws IOException {
@@ -524,9 +527,10 @@ public class HashWriter {
 		}
 
 		public BValue visitExternal(IExternalValue o) throws IOException {
-			final ByteArray digestBA = valueToHash.get(o);
-
-			return BValue.newBuilder().setType(BType.EXTERNAL_VALUE).setDigest(digestBA).build();
+			final String location = "ProtocolObjectWriter.visitExternal(IExternalValue o)";
+			throw new RuntimeException(String.format(
+					"Class: %s\nValue: %s\nLocation: %s\n", o.getClass()
+							.getName(), o, location));
 		}
 
 		public BValue visitDateTime(IDateTime o) throws IOException {
