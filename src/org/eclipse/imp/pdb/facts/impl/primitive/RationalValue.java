@@ -241,7 +241,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			if(o.getClass() == getClass()){
 				RationalValue other = (RationalValue) o;
-				return num.equals(other.num) && denom.equals(other.denom);
+				return num.isEqual(other.num) && denom.isEqual(other.denom);
 			}
 			
 			return false;
