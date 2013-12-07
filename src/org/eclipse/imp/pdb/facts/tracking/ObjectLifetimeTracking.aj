@@ -25,7 +25,8 @@ public aspect ObjectLifetimeTracking {
 
 	static Logger logger = Logger.getLogger(ObjectLifetimeTracking.class.getName());
 
-	static final boolean useStrongObjectPool = System.getProperties().containsKey("strongObjectPool");;
+	static final boolean useStrongObjectPool = System.getProperties().containsKey("strongObjectPool");
+	static final boolean measureMemory = true;
 	
 	static {
 //		logger.setUseParentHandlers(false);
@@ -124,8 +125,8 @@ public aspect ObjectLifetimeTracking {
 			}
 		}));
 		
-		trackNewObjectUnconditionally(null, BoolValue.TRUE,  BCITracker.getAndIncrementCount(), false);
-		trackNewObjectUnconditionally(null, BoolValue.FALSE, BCITracker.getAndIncrementCount(), false);
+		trackNewObjectUnconditionally(null, BoolValue.TRUE, null, BCITracker.getAndIncrementCount(), false);
+		trackNewObjectUnconditionally(null, BoolValue.FALSE, null, BCITracker.getAndIncrementCount(), false);
 		logger.info("Boolean constants are not in the object pool.");
 	}
 	
@@ -163,7 +164,7 @@ public aspect ObjectLifetimeTracking {
 				}
 				
 				putIntoObjectPool(newObject);
-				trackNewObject(thisEnclosingJoinPointStaticPart, newObject, eventTimestamp, false);
+				trackNewObject(thisEnclosingJoinPointStaticPart, newObject, null, eventTimestamp, false);
 				return newObject;
 			} else {
 				Object weaklyReferencedObject = poolObjectReferene.get();
@@ -178,7 +179,7 @@ public aspect ObjectLifetimeTracking {
 					/*
 					 * Still track short living object that will get discarded.
 					 */
-					trackNewObject(thisEnclosingJoinPointStaticPart, newObject, eventTimestamp, true);
+					trackNewObject(thisEnclosingJoinPointStaticPart, newObject, weaklyReferencedObject, eventTimestamp, true);
 					return weaklyReferencedObject;
 				} else {
 					cacheRaceCount++;
@@ -187,12 +188,12 @@ public aspect ObjectLifetimeTracking {
 						logObjectDetails(newObject);
 					}
 
-					trackNewObject(thisEnclosingJoinPointStaticPart, newObject, eventTimestamp, false);
+					trackNewObject(thisEnclosingJoinPointStaticPart, newObject, null, eventTimestamp, false);
 					return newObject;
 				}
 			}	
 		} else {
-			trackNewObject(thisEnclosingJoinPointStaticPart, newObject, eventTimestamp, false);
+			trackNewObject(thisEnclosingJoinPointStaticPart, newObject, null, eventTimestamp, false);
 			return newObject;			
 		}
 	}
@@ -217,7 +218,7 @@ public aspect ObjectLifetimeTracking {
 		objectPool.put(prototype, new WeakReference<>(prototype));
 	}	
 	
-	void trackNewObjectUnconditionally(JoinPoint.StaticPart sjp, final Object newObject, final long eventTimestamp, boolean isRedundant) {
+	void trackNewObjectUnconditionally(JoinPoint.StaticPart sjp, final Object newObject, final Object oldObject, final long eventTimestamp, final boolean isRedundant) {
 		if (doLog) {		
 			BCITracker.setTag(newObject, eventTimestamp);
 			
@@ -241,25 +242,36 @@ public aspect ObjectLifetimeTracking {
 					 * Digest calculation (expensive)
 					 */
 					byte[] digest = new byte[] {};
-					switch (trackingMode) {
-					case PROFILE_HASH_SIG:
-						// hash calculation based on hashes of contained elements
-						digest = hashWriter.calculateHash((IValue) newObject);
-						break;
 					
-					case PROFILE_FULL_SIG:
-					case SAMPLE:
-						// hashes full composite object
-						digest = HashWriter.toHashByteArray((IValue) newObject);
-						break;
-					}					
+					if (isRedundant) {
+						// lookup hash for old object
+						digest = HashWriter.toHashByteArray((IValue) oldObject);
+					} else {
+						// calculate hash for new object
+						switch (trackingMode) {
+						case PROFILE_HASH_SIG:
+							// hash calculation based on hashes of contained elements
+							digest = hashWriter.calculateHash((IValue) newObject);
+							break;
+							
+						case PROFILE_FULL_SIG:
+						case SAMPLE:
+							// hashes full composite object
+							digest = HashWriter.toHashByteArray((IValue) newObject);
+							break;
+						}						
+					}
 					tagInfoBldr.setDigest(toHexString(digest));
 
 					/*		
 					 * Measure Additional Memory Consumption (Expensive)
 					 */
-//					allocationRecBldr.setMeasuredSizeInBytes(1);
-					allocationRecBldr.setMeasuredSizeInBytes(measureObjectSize(newObject));
+					if (measureMemory) {
+						allocationRecBldr.setMeasuredSizeInBytes(measureObjectSize(newObject));
+					} else {
+						// put a placeholder value
+						allocationRecBldr.setMeasuredSizeInBytes(1);						
+					}
 
 					if (!isSharingEnabled) {						
 						allocationRecBldr.setRecursiveReferenceEqualitiesEstimate(
@@ -299,12 +311,12 @@ public aspect ObjectLifetimeTracking {
 		}	
 	}	
 	
-	void trackNewObject(JoinPoint.StaticPart sjp, Object newObject, long eventTimestamp, boolean isRedundant) {
+	void trackNewObject(JoinPoint.StaticPart sjp, final Object newObject, final Object oldObject, final long eventTimestamp, final boolean isRedundant) {
 		SAMPLE_ALLOCATION_COUNT++;
 		
 		if (trackingMode == TrackingMode.PROFILE_FULL_SIG || trackingMode == TrackingMode.PROFILE_HASH_SIG || 
 				(trackingMode == TrackingMode.SAMPLE && SAMPLE_ALLOCATION_COUNT % SAMPLE_FREQUENCY == 0)) {		
-			trackNewObjectUnconditionally(sjp, newObject, eventTimestamp, isRedundant);
+			trackNewObjectUnconditionally(sjp, newObject, oldObject, eventTimestamp, isRedundant);
 		}
 	}	
 	
