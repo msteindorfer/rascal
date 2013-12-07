@@ -26,7 +26,14 @@ public aspect ObjectLifetimeTracking {
 	static Logger logger = Logger.getLogger(ObjectLifetimeTracking.class.getName());
 
 	static final boolean useStrongObjectPool = System.getProperties().containsKey("strongObjectPool");
-	static final boolean measureMemory = true;
+	
+	public static enum MemoryMeasurementMode {
+		COUNT_AS_ONE,
+		DEEP_COUNT,
+		DIFF_COUNT
+	}
+	
+	static final MemoryMeasurementMode memoryMeasurementMode = MemoryMeasurementMode.DIFF_COUNT;
 	
 	static {
 //		logger.setUseParentHandlers(false);
@@ -264,14 +271,9 @@ public aspect ObjectLifetimeTracking {
 					tagInfoBldr.setDigest(toHexString(digest));
 
 					/*		
-					 * Measure Additional Memory Consumption (Expensive)
+					 * Measure Additional Memory Consumption (Expensive and Memory Intensive)
 					 */
-					if (measureMemory) {
-						allocationRecBldr.setMeasuredSizeInBytes(measureObjectSize(newObject));
-					} else {
-						// put a placeholder value
-						allocationRecBldr.setMeasuredSizeInBytes(1);						
-					}
+					allocationRecBldr.setMeasuredSizeInBytes(measureObjectSize(newObject));
 
 					if (!isSharingEnabled) {						
 						allocationRecBldr.setRecursiveReferenceEqualitiesEstimate(
@@ -320,35 +322,59 @@ public aspect ObjectLifetimeTracking {
 		}
 	}	
 	
-	long measureObjectSize(final Object reference) {
-		Predicate<Object> isRoot = new Predicate<Object>() {
-			@Override
-			public boolean apply(Object arg0) {
-				return arg0 == reference;
-			}
-		};
-		
-		Predicate<Object> isUnseen = new Predicate<Object>() {
-			@Override
-			public boolean apply(Object arg0) {				
-				if (referencedByIValue.containsKey(arg0)) {
-					return false;
-				} else {
-					referencedByIValue.put(arg0, null);
-					return true;
+	long measureObjectSize(final Object reference) {		
+		switch (memoryMeasurementMode) {
+		case DIFF_COUNT: {
+			Predicate<Object> isRoot = new Predicate<Object>() {
+				@Override
+				public boolean apply(Object arg0) {
+					return arg0 == reference;
 				}
-			}
-		};
+			};
+			
+			Predicate<Object> isUnseen = new Predicate<Object>() {
+				@Override
+				public boolean apply(Object arg0) {				
+					if (referencedByIValue.containsKey(arg0)) {
+						return false;
+					} else {
+						referencedByIValue.put(arg0, null);
+						return true;
+					}
+				}
+			};
+			
+			Predicate<Object> jointPredicate = Predicates.or(
+					isRoot,
+					Predicates.and(						
+							Predicates.not(Predicates.instanceOf(IValue.class)), 
+							isUnseen
+							)
+					);
+			
+			return objectexplorer.MemoryMeasurer.measureBytes(reference, jointPredicate);		
+
+		} case DEEP_COUNT: {
+			Predicate<Object> isRoot = new Predicate<Object>() {
+				@Override
+				public boolean apply(Object arg0) {
+					return arg0 == reference;
+				}
+			};
+			
+			Predicate<Object> jointPredicate = Predicates.or(
+					isRoot,
+					Predicates.not(Predicates.instanceOf(IValue.class)));
+			
+			return objectexplorer.MemoryMeasurer.measureBytes(reference, jointPredicate);
 		
-		Predicate<Object> jointPredicate = Predicates.or(
-				isRoot,
-				Predicates.and(						
-						Predicates.not(Predicates.instanceOf(IValue.class)), 
-						isUnseen
-						)
-				);
-		
-		return objectexplorer.MemoryMeasurer.measureBytes(reference, jointPredicate);				
+		} case COUNT_AS_ONE: {
+			return 1;
+			
+		} default: {
+			throw new RuntimeException("Unsupported mode.");	
+		}
+		}
 	}
 		
 	protected static String toHexString(byte[] bytes) {
