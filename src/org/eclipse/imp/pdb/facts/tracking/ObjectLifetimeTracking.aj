@@ -252,7 +252,7 @@ public aspect ObjectLifetimeTracking {
 					
 					if (isRedundant) {
 						// lookup hash for old object
-						digest = HashWriter.toHashByteArray((IValue) oldObject);
+						digest = hashWriter.calculateHash((IValue) oldObject);
 					} else {
 						// calculate hash for new object
 						switch (trackingMode) {
