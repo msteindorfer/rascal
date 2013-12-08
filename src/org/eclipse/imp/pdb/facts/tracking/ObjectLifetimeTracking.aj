@@ -428,7 +428,7 @@ public aspect ObjectLifetimeTracking {
 	/*
 	 * equals(..) call tracking in aspect
 	 */				
-	public static aspect InnerEqualsInstanceTracker percflow(topEqualsInsideAdvice()){
+	public static aspect InnerEqualsInstanceTracker percflow(topEqualsInsideAdvice() && scopedPoolLookup()) {
 		
 		long innerEqualsID = equalityIDCounter.getAndIncrement();
 		
@@ -436,6 +436,8 @@ public aspect ObjectLifetimeTracking {
 		int deepReferenceEqualityCount = 0;
 		
 //		boolean firstEntrance = true;
+
+		pointcut scopedPoolLookup() : cflowbelow(call(* ObjectLifetimeTracking.*ObjectPool(..)));
 		
 		pointcut equalsInsideAdvice() : ( 
 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) 
