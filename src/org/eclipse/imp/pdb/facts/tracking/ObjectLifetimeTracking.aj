@@ -2,8 +2,14 @@ package org.eclipse.imp.pdb.facts.tracking;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -87,7 +93,8 @@ public aspect ObjectLifetimeTracking {
 		COUNT_AS_REFERENCE_EQUALITY
 	}
 	
-	static EqualsOnAliasMode equalsOnAliasMode = EqualsOnAliasMode.COUNT_AS_REFERENCE_EQUALITY;
+	static final EqualsOnAliasMode equalsOnAliasMode = EqualsOnAliasMode.COUNT_AS_REFERENCE_EQUALITY;
+	static final boolean recordHashCollisions = false;
 	
 	static OutputStream outputStream;
 	static OutputStream equalsRelationOutputStream;
@@ -113,6 +120,18 @@ public aspect ObjectLifetimeTracking {
 					equalsRelationOutputStream.close();
 					tagMapOutputStream.close();
 				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				Path writeFile = Paths.get("target", "_hashAndCacheStatistic.bin.txt");
+				try {
+					Files.write(writeFile, Arrays.asList(
+							"Hash Collisions: " + hashTableCollision,
+							"Hash Collisions Same Reference: " + hashTableSameReferenceCollision,
+							"Cache Hit:  " + cacheHitCount,
+							"Cache Miss: " + cacheMissCount,
+							"Cache Race: " + cacheRaceCount), Charset.forName("UTF-8"));
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				
@@ -491,7 +510,9 @@ public aspect ObjectLifetimeTracking {
 				.build();
 				
 				// write & log
-				record.writeDelimitedTo(equalsRelationOutputStream);
+				if (recordHashCollisions) {
+					record.writeDelimitedTo(equalsRelationOutputStream);
+				}
 				if (logRootEqualsSummary) {
 					logger.finest(String.format("\n\nROOT_EQUALS_SUMMARY\n%s", record.toString()));
 					logObjectDetails(v1);
@@ -500,7 +521,7 @@ public aspect ObjectLifetimeTracking {
 				
 			} catch (Exception e) {
 				e.printStackTrace();
-			}			
+			}
 			
 			if (result == false) {
 				hashTableCollision++;
