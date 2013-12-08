@@ -510,7 +510,7 @@ public aspect ObjectLifetimeTracking {
 				.build();
 				
 				// write & log
-				if (recordHashCollisions) {
+				if (recordHashCollisions || result) {
 					record.writeDelimitedTo(equalsRelationOutputStream);
 				}
 				if (logRootEqualsSummary) {
