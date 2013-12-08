@@ -672,18 +672,29 @@ public aspect ObjectLifetimeTracking {
 		}
 		
 		boolean around(Object v1, Object v2) : topIsEqualOutsideAdvice() && target(v1) && args(v2) {		
+			boolean result;
+			long timestamp = BCITracker.getCount();
+			
 			// Top-down printing
 			if (logIsEqualCallOutsideAdvice) {
 				logger.finest("[isEqualCallOutsideAdvice]");
 				printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, v1, v2);
 			}	
+				
+			if (v1 == v2 && equalsOnAliasMode == EqualsOnAliasMode.COUNT_AS_REFERENCE_EQUALITY) {
+				result = (v1 == v2);
+				// Book keeping
+				deepReferenceEqualityCount++;
+			} else {
+				result = proceed(v1, v2);
+				// Book keeping
+				deepEqualityCount++;
 			
-			long timestamp = BCITracker.getCount();
-			boolean result = proceed(v1, v2);
-
-			// Book keeping
-			deepEqualityCount++;
-			
+				if (v1 == v2 && equalsOnAliasMode == EqualsOnAliasMode.EMIT_WARNING && (deepEqualityCount != initialDeepEqualityCount + 1 || deepReferenceEqualityCount != initialDeepReferenceEqualityCount)) {
+					logger.warning(String.format("Class does not fast-fail on reference equality: %s", v1.getClass().getName()));
+				}
+			}			
+						
 			writeTrace(timestamp, v1, v2, result, false);
 			
 			// Bottom-up printing
@@ -699,10 +710,24 @@ public aspect ObjectLifetimeTracking {
 				printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, v1, v2);
 			}	
 
-			boolean result = proceed(v1, v2);
-
-			// Book keeping
-			deepEqualityCount++;
+			boolean result;
+			
+			if (v1 == v2 && equalsOnAliasMode == EqualsOnAliasMode.COUNT_AS_REFERENCE_EQUALITY) {
+				result = (v1 == v2);
+				// Book keeping
+				deepReferenceEqualityCount++;
+			} else {
+				final long oldDeepEqualityCount = deepEqualityCount;
+				final long oldDeepReferenceEqualityCount = deepReferenceEqualityCount;
+				
+				result = proceed(v1, v2);
+				// Book keeping
+				deepEqualityCount++;
+			
+				if (v1 == v2 && equalsOnAliasMode == EqualsOnAliasMode.EMIT_WARNING && (deepEqualityCount != oldDeepEqualityCount + 1 || deepReferenceEqualityCount != oldDeepReferenceEqualityCount)) {
+					logger.warning(String.format("Class does not fast-fail on reference equality: %s", v1.getClass().getName()));
+				}
+			}			
 			
 			// Bottom-up printing
 //			if (!result)
