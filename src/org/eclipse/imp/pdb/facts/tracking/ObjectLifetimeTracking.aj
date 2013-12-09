@@ -130,7 +130,8 @@ public aspect ObjectLifetimeTracking {
 							"Hash Collisions Same Reference: " + hashTableSameReferenceCollision,
 							"Cache Hit:  " + cacheHitCount,
 							"Cache Miss: " + cacheMissCount,
-							"Cache Race: " + cacheRaceCount), Charset.forName("UTF-8"));
+							"Cache Race: " + cacheRaceCount,
+							"Last Count: " + BCITracker.getCount()), Charset.forName("UTF-8"));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -141,6 +142,7 @@ public aspect ObjectLifetimeTracking {
 				System.out.println("Cache Hit:  " + cacheHitCount);
 				System.out.println("Cache Miss: " + cacheMissCount);
 				System.out.println("Cache Race: " + cacheRaceCount);
+				System.out.println("Last Count: " + BCITracker.getCount());
 				
 				/*
 				 * Clean up referenced values to have more heap space for
