@@ -27,23 +27,57 @@ public class MaximalSharingBenchmark {
 	protected static final TypeStore typeStore = new TypeStore();
 	protected final IValueFactory valueFactory = org.eclipse.imp.pdb.facts.impl.fast.ValueFactory.getInstance();
 	
-	private final int depth = 20; // VALUES 2 and 1 are good for calibrating
+	private final int globalDepth = 20; // VALUES 2 and 1 are good for calibrating
+
+	@Test
+	public void testSingleTreeWithShareableElements_00() {
+		testSingleTreeWithShareableElements(00);	
+	}
 	
 	@Test
-	public void testSingleTreeWithShareableElements() {
-		final IValue one = createTreeWithShareableElements(false);
+	public void testSingleTreeWithShareableElements_01() {
+		testSingleTreeWithShareableElements(01);	
+	}
+
+	@Test
+	public void testSingleTreeWithShareableElements_02() {
+		testSingleTreeWithShareableElements(02);	
+	}
+
+	@Test
+	public void testSingleTreeWithShareableElements_05() {
+		testSingleTreeWithShareableElements(05);	
+	}
+
+	@Test
+	public void testSingleTreeWithShareableElements_10() {
+		testSingleTreeWithShareableElements(10);	
+	}
+	
+	@Test
+	public void testSingleTreeWithShareableElements_15() {
+		testSingleTreeWithShareableElements(15);	
+	}	
+
+	@Test
+	public void testSingleTreeWithShareableElements_20() {
+		testSingleTreeWithShareableElements(20);	
+	}
+	
+	public void testSingleTreeWithShareableElements(int depth) {
+		final IValue one = createTreeWithShareableElements(false, depth);
 		assertTrue(one != null);
 	}
 	
 	/**
-	 * Baseline benchmark that creates a tree with a given {@link #depth}. All
+	 * Baseline benchmark that creates a tree with a given {@link #globalDepth}. All
 	 * leaf nodes are the same and therefore do not have hash collisions.
 	 */
 	@Test
 	public void testTreeWithShareableElements() {
-		final IValue one = createTreeWithShareableElements(false);
-		final IValue two = createTreeWithShareableElements(false);
-		final IValue thr = createTreeWithShareableElements(false);		
+		final IValue one = createTreeWithShareableElements(false, globalDepth);
+		final IValue two = createTreeWithShareableElements(false, globalDepth);
+		final IValue thr = createTreeWithShareableElements(false, globalDepth);		
 		
 		assertTrue(one.equals(two));
 		assertTrue(one.equals(thr));
@@ -56,24 +90,24 @@ public class MaximalSharingBenchmark {
 	@Test
 	public void testTreeWithShareableElementsAndMixedEqualitiesAnnotations() {
 		// TEST
-		final IValue one = createTreeWithShareableElements(false);
+		final IValue one = createTreeWithShareableElements(false, globalDepth);
 		assertTrue(one.equals(one));
 		assertTrue(one.isEqual(one));
 
-		final IValue two = createTreeWithShareableElements(true);
+		final IValue two = createTreeWithShareableElements(true, globalDepth);
 		assertFalse(one.equals(two));
 		assertTrue(one.isEqual(two));
 
-		final IValue thr = createTreeWithShareableElements(false);
+		final IValue thr = createTreeWithShareableElements(false, globalDepth);
 		assertTrue(thr.equals(thr));
 		assertTrue(thr.isEqual(thr));
 	}
 		
 	/**
-	 * Baseline benchmark that creates a tree with a given {@link #depth}. All
+	 * Baseline benchmark that creates a tree with a given {@link #globalDepth}. All
 	 * leaf nodes are the same and therefore do not have hash collisions.
 	 */
-	public IValue createTreeWithShareableElements(boolean withAnnotations) {
+	public IValue createTreeWithShareableElements(boolean withAnnotations, int depth) {
 		final Queue<IValue> queue = new LinkedList<>();
 				
 		final long count = (long) Math.pow(2, depth);
@@ -81,7 +115,7 @@ public class MaximalSharingBenchmark {
 		
 		// create (IInteger)
 		for (long i = 0; i < count; i++) {
-			queue.offer(valueFactory.integer(0));
+			queue.offer(valueFactory.integer(1));
 		}
 		
 		// reduce (INode)
@@ -107,20 +141,54 @@ public class MaximalSharingBenchmark {
 	}
 	
 	@Test
-	public void testSingleTreeWithUniqueElements() {
-		final IValue one = createTreeWithUniqueElements(false);
+	public void testSingleTreeWithUniqueElements_00() {
+		testSingleTreeWithUniqueElements(00);	
+	}
+	
+	@Test
+	public void testSingleTreeWithUniqueElements_01() {
+		testSingleTreeWithUniqueElements(01);	
+	}
+
+	@Test
+	public void testSingleTreeWithUniqueElements_02() {
+		testSingleTreeWithUniqueElements(02);	
+	}
+
+	@Test
+	public void testSingleTreeWithUniqueElements_05() {
+		testSingleTreeWithUniqueElements(05);	
+	}
+
+	@Test
+	public void testSingleTreeWithUniqueElements_10() {
+		testSingleTreeWithUniqueElements(10);	
+	}
+	
+	@Test
+	public void testSingleTreeWithUniqueElements_15() {
+		testSingleTreeWithUniqueElements(15);	
+	}	
+
+	@Test
+	public void testSingleTreeWithUniqueElements_20() {
+		testSingleTreeWithUniqueElements(20);	
+	}	
+		
+	public void testSingleTreeWithUniqueElements(int depth) {
+		final IValue one = createTreeWithUniqueElements(false, depth);
 		assertTrue(one != null);
 	}
 	
 	/**
-	 * Baseline benchmark that creates a tree with a given {@link #depth}. All
+	 * Baseline benchmark that creates a tree with a given {@link #globalDepth}. All
 	 * leaf nodes are the same and therefore do not have hash collisions.
 	 */
 	@Test
 	public void testTreeWithUniqueElements() {
-		final IValue one = createTreeWithUniqueElements(false);
-		final IValue two = createTreeWithUniqueElements(false);
-		final IValue thr = createTreeWithUniqueElements(false);
+		final IValue one = createTreeWithUniqueElements(false, globalDepth);
+		final IValue two = createTreeWithUniqueElements(false, globalDepth);
+		final IValue thr = createTreeWithUniqueElements(false, globalDepth);
 				
 		assertTrue(one.equals(two));		
 		assertTrue(one.equals(thr));
@@ -133,24 +201,24 @@ public class MaximalSharingBenchmark {
 	@Test
 	public void testTreeWithUniqueElementsAndMixedEqualitiesAnnotations() {
 		// TEST
-		final IValue one = createTreeWithUniqueElements(false);
+		final IValue one = createTreeWithUniqueElements(false, globalDepth);
 		assertTrue(one.equals(one));
 		assertTrue(one.isEqual(one));
 
-		final IValue two = createTreeWithUniqueElements(true);
+		final IValue two = createTreeWithUniqueElements(true, globalDepth);
 		assertFalse(one.equals(two));
 		assertTrue(one.isEqual(two));
 
-		final IValue thr = createTreeWithUniqueElements(false);
+		final IValue thr = createTreeWithUniqueElements(false, globalDepth);
 		assertTrue(thr.equals(thr));
 		assertTrue(thr.isEqual(thr));
 	}	
 	
 	/**
-	 * Baseline benchmark that creates a tree with a given {@link #depth}. All
+	 * Baseline benchmark that creates a tree with a given {@link #globalDepth}. All
 	 * leaf nodes are distinct integers and therefore do not have hash collisions.
 	 */
-	public IValue createTreeWithUniqueElements(boolean withAnnotations) { 
+	public IValue createTreeWithUniqueElements(boolean withAnnotations, int depth) { 
 		Queue<IValue> queue = new LinkedList<>();
 		
 		final long count = (long) Math.pow(2, depth);
@@ -158,7 +226,7 @@ public class MaximalSharingBenchmark {
 		
 		// create (IInteger)
 		for (long i = 0; i < count; i++) {
-			queue.offer(valueFactory.integer(i));
+			queue.offer(valueFactory.integer(i+1));
 		}
 		
 		// reduce (INode)
