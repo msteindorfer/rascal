@@ -37,15 +37,13 @@ public abstract class AbstractValue implements IValue {
 		super();
 	}
 	
-	@Override
 	public String toString() {
 		try(StringWriter stream = new StringWriter()) {
 			new StandardTextWriter().write(this, stream);
 			return stream.toString();
 		} catch (IOException ioex) {
-			// this never happens
+			throw new RuntimeException("Should have never happened.", ioex);
 		}
-		return "";
 	}
 
 	public String toHashString() {
