@@ -66,6 +66,7 @@ public class HashWriter {
 	final static protected HashStringWriter hashStringWriter = new HashStringWriter();
 	final static protected ProtocolObjectWriter protoObjectWriter = new ProtocolObjectWriter();
 	
+	final static protected boolean isOrderUnorderedDisabled = System.getProperties().containsKey("orderUnorderedDisabled");
 	final static protected boolean isXORHashingEnabled = true;
 	
 	public static byte[] toHashByteArray(IValue value) {
@@ -263,7 +264,17 @@ public class HashWriter {
 		public ByteArray visitMap(IMap o) throws IOException {
 			final BValue.Builder mapBuilder = BValue.newBuilder().setType(BType.MAP);
 
-			if (isXORHashingEnabled) {
+			if (isOrderUnorderedDisabled) {
+				for (Iterator<Map.Entry<IValue, IValue>> iterator = o.entryIterator(); iterator.hasNext();) {
+					Map.Entry<IValue, IValue> entry = iterator.next();
+			
+					final BValue nestedKey = entry.getKey().accept(protoObjectWriter);					
+					mapBuilder.addNested(nestedKey);
+					
+					final BValue nestedVal = entry.getValue().accept(protoObjectWriter);					
+					mapBuilder.addNested(nestedVal);					
+				}
+			} else if (isXORHashingEnabled) {
 				/*
 				 * Apply order-independent hashing.
 				 */				
@@ -319,7 +330,12 @@ public class HashWriter {
 		public ByteArray visitSet(ISet o) throws IOException {
 			final BValue.Builder setBuilder = BValue.newBuilder().setType(BType.SET);
 
-			if (isXORHashingEnabled) {
+			if (isOrderUnorderedDisabled) {
+				for (Iterator<IValue> iterator = o.iterator(); iterator.hasNext();) {		
+					final BValue nestedKey = iterator.next().accept(protoObjectWriter);					
+					setBuilder.addNested(nestedKey);
+				}
+			} else if (isXORHashingEnabled) {
 				/*
 				 * Apply order-independent hashing.
 				 */				
