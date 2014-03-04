@@ -53,6 +53,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import com.google.protobuf.ByteString;
 
 public class HashWriter {
 
@@ -67,7 +68,7 @@ public class HashWriter {
 	final static protected ProtocolObjectWriter protoObjectWriter = new ProtocolObjectWriter();
 	
 	final static protected boolean isOrderUnorderedDisabled = System.getProperties().containsKey("orderUnorderedDisabled");
-	final static protected boolean isXORHashingEnabled = true;
+	final static protected boolean isXORHashingEnabled = System.getProperties().containsKey("XORHashingEnabled");
 	
 	public static byte[] toHashByteArray(IValue value) {
 		return toHashViaGuavaHasher(value);
@@ -274,51 +275,57 @@ public class HashWriter {
 					final BValue nestedVal = entry.getValue().accept(protoObjectWriter);					
 					mapBuilder.addNested(nestedVal);					
 				}
-			} else if (isXORHashingEnabled) {
-				/*
-				 * Apply order-independent hashing.
-				 */				
-				final byte[] xorHashKey = new byte[32];
-				final byte[] xorHashVal = new byte[32];
-				
-				for (Iterator<Map.Entry<IValue, IValue>> iterator = o.entryIterator(); iterator.hasNext();) {
-					Map.Entry<IValue, IValue> e = iterator.next();
-					final byte[] curHashKey = valueToHash.get(e.getKey()).getBytes();
-					final byte[] curHashVal = valueToHash.get(e.getValue()).getBytes();
-									
-					for (int i = 0; i < 32; i++) {
-						xorHashKey[i] ^= curHashKey[i];
-						xorHashVal[i] ^= curHashVal[i];
+			} else {
+				if (isXORHashingEnabled) {
+					/*
+					 * Apply order-independent hashing.
+					 */
+					final byte[] xorHashKey = new byte[32];
+					final byte[] xorHashVal = new byte[32];
+
+					for (Iterator<Map.Entry<IValue, IValue>> iterator = o.entryIterator(); iterator
+									.hasNext();) {
+						Map.Entry<IValue, IValue> e = iterator.next();
+						final byte[] curHashKey = valueToHash.get(e.getKey()).getBytes();
+						final byte[] curHashVal = valueToHash.get(e.getValue()).getBytes();
+
+						for (int i = 0; i < 32; i++) {
+							xorHashKey[i] ^= curHashKey[i];
+							xorHashVal[i] ^= curHashVal[i];
+						}
+					}
+
+					/*
+					 * Apply order-dependent concatenation to distinguish
+					 * between keys and values.
+					 */
+					final byte[] xorHash = Hashing.sha256().newHasher(64).putBytes(xorHashKey)
+									.putBytes(xorHashVal).hash().asBytes();
+
+					// mapBuilder.setDigest(new ByteArray(xorHash));
+					mapBuilder.setNestedDigest(ByteString.copyFrom(xorHash));
+				} else {
+					/*
+					 * Topologically hashes and concatenate them.
+					 */
+					final SortedMap<ByteArray, List<BValue>> sortedPairsByHash = new TreeMap<>();
+					for (Iterator<Map.Entry<IValue, IValue>> iterator = o.entryIterator(); iterator
+									.hasNext();) {
+						Map.Entry<IValue, IValue> entry = iterator.next();
+
+						final ByteArray keyHash = valueToHash.get(entry.getKey());
+
+						final BValue keyValue = entry.getKey().accept(protoObjectWriter);
+						final BValue valValue = entry.getValue().accept(protoObjectWriter);
+
+						sortedPairsByHash.put(keyHash, Arrays.asList(keyValue, valValue));
+					}
+
+					for (List<BValue> pair : sortedPairsByHash.values()) {
+						mapBuilder.addNested(pair.get(0));
+						mapBuilder.addNested(pair.get(1));
 					}
 				}
-				
-				/*
-				 * Apply order-dependent concatenation to distinguish between
-				 * keys and values.
-				 */
-				final byte[] xorHash = Hashing.sha256().newHasher(64)
-						.putBytes(xorHashKey)
-						.putBytes(xorHashVal)
-						.hash().asBytes();
-				
-				mapBuilder.setDigest(new ByteArray(xorHash));
-			} else {
-				/*
-				 * Topologically hashes and concatenate them.
-				 */
-				final SortedMap<ByteArray, List<BValue>> sortedPairsByHash = new TreeMap<>();
-				for (IValue e : o) {
-					final ByteArray keyHash = valueToHash.get(e);
-					final BValue keyValue = e.accept(protoObjectWriter);
-					final BValue valValue = o.get(e).accept(protoObjectWriter);
-	
-					sortedPairsByHash.put(keyHash, Arrays.asList(keyValue, valValue));
-				}
-	
-				for (List<BValue> pair : sortedPairsByHash.values()) {
-					mapBuilder.addNested(pair.get(0));
-					mapBuilder.addNested(pair.get(1));
-				}								
 			}
 			
 			return new ByteArray(toHashByteArray(mapBuilder.build()));
@@ -335,35 +342,38 @@ public class HashWriter {
 					final BValue nestedKey = iterator.next().accept(protoObjectWriter);					
 					setBuilder.addNested(nestedKey);
 				}
-			} else if (isXORHashingEnabled) {
-				/*
-				 * Apply order-independent hashing.
-				 */				
-				final byte[] xorHash = new byte[32];
-			
-				for (IValue e : o) {
-					final byte[] curHash = valueToHash.get(e).getBytes();
-					
-					int i = 0;
-					for (byte b : curHash)
-					    xorHash[i] = (byte) (b ^ xorHash[i++]);
-				}
-
-				setBuilder.setDigest(new ByteArray(xorHash));
 			} else {
-				/*
-				 * Topologically hashes and concatenate them.
-				 */				
-				final SortedMap<ByteArray, BValue> sortedValues = new TreeMap<>();
-				for (IValue e : o) {
-					final ByteArray valueHash = valueToHash.get(e);
-					final BValue valueValue = e.accept(protoObjectWriter);
-					
-					sortedValues.put(valueHash, valueValue);
-				}
-	
-				for (BValue e : sortedValues.values()) {
-					setBuilder.addNested(e);
+				if (isXORHashingEnabled) {
+					/*
+					 * Apply order-independent hashing.
+					 */
+					final byte[] xorHash = new byte[32];
+
+					for (IValue e : o) {
+						final byte[] curHash = valueToHash.get(e).getBytes();
+
+						int i = 0;
+						for (byte b : curHash)
+							xorHash[i] = (byte) (b ^ xorHash[i++]);
+					}
+
+					// setBuilder.setDigest(new ByteArray(xorHash));
+					setBuilder.setNestedDigest(ByteString.copyFrom(xorHash));
+				} else {
+					/*
+					 * Topologically hashes and concatenate them.
+					 */
+					final SortedMap<ByteArray, BValue> sortedValues = new TreeMap<>();
+					for (IValue e : o) {
+						final ByteArray valueHash = valueToHash.get(e);
+						final BValue valueValue = e.accept(protoObjectWriter);
+
+						sortedValues.put(valueHash, valueValue);
+					}
+
+					for (BValue e : sortedValues.values()) {
+						setBuilder.addNested(e);
+					}
 				}
 			}
 
@@ -383,24 +393,44 @@ public class HashWriter {
 			
 			// keyword arguments
 			if (o.hasKeywordArguments()) {
-				final Set<String> sortedKeywords = new TreeSet<>();
-				for (String e : o.getKeywordArgumentNames()) {
-					sortedKeywords.add(e);
-				}
-				assert (sortedKeywords.size() == o.arity() - o.positionalArity());
-				for (String e : sortedKeywords) {
-					final int keywordIdx = o.getKeywordIndex(e);
-					final BValue valueValue = o.get(keywordIdx).accept(protoObjectWriter);
-					nodeBuilder.addAnnotations(BAnnotation.newBuilder().setName(e).setValue(valueValue).build());
+				if (isOrderUnorderedDisabled) {
+					// unsorted processing
+					for (String e : o.getKeywordArgumentNames()) {
+						final int keywordIdx = o.getKeywordIndex(e);
+						final BValue valueValue = o.get(keywordIdx).accept(protoObjectWriter);
+						nodeBuilder.addAnnotations(BAnnotation.newBuilder().setName(e).setValue(valueValue).build());
+					}					
+				} else {
+					// sort unordered names
+					final Set<String> sortedKeywords = new TreeSet<>();
+					for (String e : o.getKeywordArgumentNames()) {
+						sortedKeywords.add(e);
+					}
+					assert (sortedKeywords.size() == o.arity() - o.positionalArity());
+					for (String e : sortedKeywords) {
+						final int keywordIdx = o.getKeywordIndex(e);
+						final BValue valueValue = o.get(keywordIdx).accept(protoObjectWriter);
+						nodeBuilder.addAnnotations(BAnnotation.newBuilder().setName(e).setValue(valueValue).build());
+					}
 				}
 			}
 			
 			// annotations
-			final Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
-			final Set<String> sortedKeys = new TreeSet<>(annotations.keySet());
-			for (String e : sortedKeys) {
-				final BValue valueValue = annotations.get(e).accept(protoObjectWriter);
-				nodeBuilder.addAnnotations(BAnnotation.newBuilder().setName(e).setValue(valueValue).build());
+			if (isOrderUnorderedDisabled) {
+				// unsorted processing
+				final Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
+				for (String e : annotations.keySet()) {
+					final BValue valueValue = annotations.get(e).accept(protoObjectWriter);
+					nodeBuilder.addAnnotations(BAnnotation.newBuilder().setName(e).setValue(valueValue).build());
+				}
+			} else {
+				// sort unordered names
+				final Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
+				final Set<String> sortedKeys = new TreeSet<>(annotations.keySet());
+				for (String e : sortedKeys) {
+					final BValue valueValue = annotations.get(e).accept(protoObjectWriter);
+					nodeBuilder.addAnnotations(BAnnotation.newBuilder().setName(e).setValue(valueValue).build());
+				}
 			}
 
 			return new ByteArray(toHashByteArray(nodeBuilder.build()));			
@@ -418,11 +448,21 @@ public class HashWriter {
 			}
 
 			// annotations
-			final Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
-			final Set<String> sortedKeys = new TreeSet<>(annotations.keySet());
-			for (String e : sortedKeys) {
-				final BValue valueValue = annotations.get(e).accept(protoObjectWriter);
-				constructorBuilder.addAnnotations(BAnnotation.newBuilder().setName(e).setValue(valueValue).build());
+			if (isOrderUnorderedDisabled) {
+				// unsorted processing
+				final Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
+				for (String e : annotations.keySet()) {
+					final BValue valueValue = annotations.get(e).accept(protoObjectWriter);
+					constructorBuilder.addAnnotations(BAnnotation.newBuilder().setName(e).setValue(valueValue).build());
+				}
+			} else {
+				// sort unordered names
+				final Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
+				final Set<String> sortedKeys = new TreeSet<>(annotations.keySet());
+				for (String e : sortedKeys) {
+					final BValue valueValue = annotations.get(e).accept(protoObjectWriter);
+					constructorBuilder.addAnnotations(BAnnotation.newBuilder().setName(e).setValue(valueValue).build());
+				}
 			}
 
 			return new ByteArray(toHashByteArray(constructorBuilder.build()));
@@ -473,51 +513,51 @@ public class HashWriter {
 		}
 		
 		public BValue visitBoolean(IBool o) throws IOException {	
-			final ByteArray digestBA = valueToHash.get(o); 
+			final ByteArray digestBA = valueToHash.get(o);
 
-			return BValue.newBuilder().setType(BType.BOOL).setDigest(digestBA).build();
+			return BValue.newBuilder().setType(BType.BOOL).setDigest(ByteString.copyFrom(digestBA.getBytes())).build();
 		}
 
 		public BValue visitReal(IReal o) throws IOException {
 			final ByteArray digestBA = valueToHash.get(o); 
 
-			return BValue.newBuilder().setType(BType.REAL).setDigest(digestBA).build();
+			return BValue.newBuilder().setType(BType.REAL).setDigest(ByteString.copyFrom(digestBA.getBytes())).build();
 		}
 
 		public BValue visitInteger(IInteger o) throws IOException {
 			final ByteArray digestBA = valueToHash.get(o);
 
-			return BValue.newBuilder().setType(BType.INTEGER).setDigest(digestBA).build();
+			return BValue.newBuilder().setType(BType.INTEGER).setDigest(ByteString.copyFrom(digestBA.getBytes())).build();
 		}
 
 		public BValue visitRational(IRational o) throws IOException {
 			final ByteArray digestBA = valueToHash.get(o);
 
-			return BValue.newBuilder().setType(BType.RATIONAL).setDigest(digestBA).build();
+			return BValue.newBuilder().setType(BType.RATIONAL).setDigest(ByteString.copyFrom(digestBA.getBytes())).build();
 		}
 
 		public BValue visitList(IList o) throws IOException {
 			final ByteArray digestBA = valueToHash.get(o);
 
-			return BValue.newBuilder().setType(BType.LIST).setDigest(digestBA).build();
+			return BValue.newBuilder().setType(BType.LIST).setDigest(ByteString.copyFrom(digestBA.getBytes())).build();
 		}
 
 		public BValue visitMap(IMap o) throws IOException {
 			final ByteArray digestBA = valueToHash.get(o);
 
-			return BValue.newBuilder().setType(BType.MAP).setDigest(digestBA).build();
+			return BValue.newBuilder().setType(BType.MAP).setDigest(ByteString.copyFrom(digestBA.getBytes())).build();
 		}
 
 		public BValue visitSet(ISet o) throws IOException {
 			final ByteArray digestBA = valueToHash.get(o);
 
-			return BValue.newBuilder().setType(BType.SET).setDigest(digestBA).build();
+			return BValue.newBuilder().setType(BType.SET).setDigest(ByteString.copyFrom(digestBA.getBytes())).build();
 		}
 
 		public BValue visitConstructor(IConstructor o) throws IOException {
 			final ByteArray digestBA = valueToHash.get(o);
 
-			return BValue.newBuilder().setType(BType.CONSTRUCTOR).setDigest(digestBA).build();
+			return BValue.newBuilder().setType(BType.CONSTRUCTOR).setDigest(ByteString.copyFrom(digestBA.getBytes())).build();
 		}
 
 		public BValue visitRelation(ISet o) throws IOException {
@@ -527,19 +567,19 @@ public class HashWriter {
 		public BValue visitSourceLocation(ISourceLocation o) throws IOException {
 			final ByteArray digestBA = valueToHash.get(o);
 
-			return BValue.newBuilder().setType(BType.SOURCE_LOCATION).setDigest(digestBA).build();
+			return BValue.newBuilder().setType(BType.SOURCE_LOCATION).setDigest(ByteString.copyFrom(digestBA.getBytes())).build();
 		}
 
 		public BValue visitString(IString o) throws IOException {
 			final ByteArray digestBA = valueToHash.get(o);
 
-			return BValue.newBuilder().setType(BType.STRING).setDigest(digestBA).build();
+			return BValue.newBuilder().setType(BType.STRING).setDigest(ByteString.copyFrom(digestBA.getBytes())).build();
 		}
 
 		public BValue visitTuple(ITuple o) throws IOException {
 			final ByteArray digestBA = valueToHash.get(o);
 
-			return BValue.newBuilder().setType(BType.TUPLE).setDigest(digestBA).build();
+			return BValue.newBuilder().setType(BType.TUPLE).setDigest(ByteString.copyFrom(digestBA.getBytes())).build();
 		}
 
 		public BValue visitExternal(IExternalValue o) throws IOException {
@@ -552,7 +592,7 @@ public class HashWriter {
 		public BValue visitDateTime(IDateTime o) throws IOException {
 			final ByteArray digestBA = valueToHash.get(o);
 
-			return BValue.newBuilder().setType(BType.DATE_TIME).setDigest(digestBA).build();
+			return BValue.newBuilder().setType(BType.DATE_TIME).setDigest(ByteString.copyFrom(digestBA.getBytes())).build();
 		}
 
 		public BValue visitListRelation(IList o) throws IOException {
@@ -562,7 +602,7 @@ public class HashWriter {
 		public BValue visitNode(INode o) throws IOException {
 			final ByteArray digestBA = valueToHash.get(o);
 
-			return BValue.newBuilder().setType(BType.NODE).setDigest(digestBA).build();
+			return BValue.newBuilder().setType(BType.NODE).setDigest(ByteString.copyFrom(digestBA.getBytes())).build();
 		}
 	}
 

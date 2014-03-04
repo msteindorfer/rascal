@@ -8,6 +8,7 @@ message BValue {
 	repeated BValue nested = 4;
 	repeated BAnnotation keywordArgs = 5;
 	repeated BAnnotation annotations = 6;
+	optional bytes nestedDigest = 7;
 
 	enum BType {
 		BOOL = 1;

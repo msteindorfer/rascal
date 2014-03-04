@@ -3,8 +3,6 @@
 
 package org.eclipse.imp.pdb.facts.tracking;
 
-import com.google.protobuf.WireFormat;
-
 public final class PDBProtocolBuffers {
   private PDBProtocolBuffers() {}
   public static void registerAllExtensions(
@@ -31,7 +29,7 @@ public final class PDBProtocolBuffers {
     /**
      * <code>optional bytes digest = 2;</code>
      */
-    org.eclipse.imp.pdb.facts.io.hash.ByteArray getDigest();
+    com.google.protobuf.ByteString getDigest();
 
     // optional string name = 3;
     /**
@@ -73,30 +71,65 @@ public final class PDBProtocolBuffers {
     org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValueOrBuilder getNestedOrBuilder(
         int index);
 
-    // repeated .BValue.BAnnotation annotations = 5;
+    // repeated .BValue.BAnnotation keywordArgs = 5;
     /**
-     * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+     * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+     */
+    java.util.List<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation> 
+        getKeywordArgsList();
+    /**
+     * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+     */
+    org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation getKeywordArgs(int index);
+    /**
+     * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+     */
+    int getKeywordArgsCount();
+    /**
+     * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+     */
+    java.util.List<? extends org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder> 
+        getKeywordArgsOrBuilderList();
+    /**
+     * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+     */
+    org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder getKeywordArgsOrBuilder(
+        int index);
+
+    // repeated .BValue.BAnnotation annotations = 6;
+    /**
+     * <code>repeated .BValue.BAnnotation annotations = 6;</code>
      */
     java.util.List<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation> 
         getAnnotationsList();
     /**
-     * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+     * <code>repeated .BValue.BAnnotation annotations = 6;</code>
      */
     org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation getAnnotations(int index);
     /**
-     * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+     * <code>repeated .BValue.BAnnotation annotations = 6;</code>
      */
     int getAnnotationsCount();
     /**
-     * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+     * <code>repeated .BValue.BAnnotation annotations = 6;</code>
      */
     java.util.List<? extends org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder> 
         getAnnotationsOrBuilderList();
     /**
-     * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+     * <code>repeated .BValue.BAnnotation annotations = 6;</code>
      */
     org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder getAnnotationsOrBuilder(
         int index);
+
+    // optional bytes nestedDigest = 7;
+    /**
+     * <code>optional bytes nestedDigest = 7;</code>
+     */
+    boolean hasNestedDigest();
+    /**
+     * <code>optional bytes nestedDigest = 7;</code>
+     */
+    com.google.protobuf.ByteString getNestedDigest();
   }
   /**
    * Protobuf type {@code BValue}
@@ -162,7 +195,7 @@ public final class PDBProtocolBuffers {
             }
             case 18: {
               bitField0_ |= 0x00000002;
-              digest_ = new org.eclipse.imp.pdb.facts.io.hash.ByteArray(input.readBytes().toByteArray());
+              digest_ = input.readBytes();
               break;
             }
             case 26: {
@@ -180,10 +213,23 @@ public final class PDBProtocolBuffers {
             }
             case 42: {
               if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
-                annotations_ = new java.util.ArrayList<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation>();
+                keywordArgs_ = new java.util.ArrayList<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation>();
                 mutable_bitField0_ |= 0x00000010;
               }
+              keywordArgs_.add(input.readMessage(org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.PARSER, extensionRegistry));
+              break;
+            }
+            case 50: {
+              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+                annotations_ = new java.util.ArrayList<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation>();
+                mutable_bitField0_ |= 0x00000020;
+              }
               annotations_.add(input.readMessage(org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.PARSER, extensionRegistry));
+              break;
+            }
+            case 58: {
+              bitField0_ |= 0x00000008;
+              nestedDigest_ = input.readBytes();
               break;
             }
           }
@@ -198,6 +244,9 @@ public final class PDBProtocolBuffers {
           nested_ = java.util.Collections.unmodifiableList(nested_);
         }
         if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+          keywordArgs_ = java.util.Collections.unmodifiableList(keywordArgs_);
+        }
+        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
           annotations_ = java.util.Collections.unmodifiableList(annotations_);
         }
         this.unknownFields = unknownFields.build();
@@ -1103,7 +1152,7 @@ public final class PDBProtocolBuffers {
 
     // optional bytes digest = 2;
     public static final int DIGEST_FIELD_NUMBER = 2;
-    private org.eclipse.imp.pdb.facts.io.hash.ByteArray digest_;
+    private com.google.protobuf.ByteString digest_;
     /**
      * <code>optional bytes digest = 2;</code>
      */
@@ -1113,7 +1162,7 @@ public final class PDBProtocolBuffers {
     /**
      * <code>optional bytes digest = 2;</code>
      */
-    public org.eclipse.imp.pdb.facts.io.hash.ByteArray getDigest() {
+    public com.google.protobuf.ByteString getDigest() {
       return digest_;
     }
 
@@ -1196,48 +1245,102 @@ public final class PDBProtocolBuffers {
       return nested_.get(index);
     }
 
-    // repeated .BValue.BAnnotation annotations = 5;
-    public static final int ANNOTATIONS_FIELD_NUMBER = 5;
+    // repeated .BValue.BAnnotation keywordArgs = 5;
+    public static final int KEYWORDARGS_FIELD_NUMBER = 5;
+    private java.util.List<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation> keywordArgs_;
+    /**
+     * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+     */
+    public java.util.List<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation> getKeywordArgsList() {
+      return keywordArgs_;
+    }
+    /**
+     * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+     */
+    public java.util.List<? extends org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder> 
+        getKeywordArgsOrBuilderList() {
+      return keywordArgs_;
+    }
+    /**
+     * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+     */
+    public int getKeywordArgsCount() {
+      return keywordArgs_.size();
+    }
+    /**
+     * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+     */
+    public org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation getKeywordArgs(int index) {
+      return keywordArgs_.get(index);
+    }
+    /**
+     * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+     */
+    public org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder getKeywordArgsOrBuilder(
+        int index) {
+      return keywordArgs_.get(index);
+    }
+
+    // repeated .BValue.BAnnotation annotations = 6;
+    public static final int ANNOTATIONS_FIELD_NUMBER = 6;
     private java.util.List<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation> annotations_;
     /**
-     * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+     * <code>repeated .BValue.BAnnotation annotations = 6;</code>
      */
     public java.util.List<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation> getAnnotationsList() {
       return annotations_;
     }
     /**
-     * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+     * <code>repeated .BValue.BAnnotation annotations = 6;</code>
      */
     public java.util.List<? extends org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder> 
         getAnnotationsOrBuilderList() {
       return annotations_;
     }
     /**
-     * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+     * <code>repeated .BValue.BAnnotation annotations = 6;</code>
      */
     public int getAnnotationsCount() {
       return annotations_.size();
     }
     /**
-     * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+     * <code>repeated .BValue.BAnnotation annotations = 6;</code>
      */
     public org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation getAnnotations(int index) {
       return annotations_.get(index);
     }
     /**
-     * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+     * <code>repeated .BValue.BAnnotation annotations = 6;</code>
      */
     public org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder getAnnotationsOrBuilder(
         int index) {
       return annotations_.get(index);
     }
 
+    // optional bytes nestedDigest = 7;
+    public static final int NESTEDDIGEST_FIELD_NUMBER = 7;
+    private com.google.protobuf.ByteString nestedDigest_;
+    /**
+     * <code>optional bytes nestedDigest = 7;</code>
+     */
+    public boolean hasNestedDigest() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional bytes nestedDigest = 7;</code>
+     */
+    public com.google.protobuf.ByteString getNestedDigest() {
+      return nestedDigest_;
+    }
+
     private void initFields() {
       type_ = org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BType.BOOL;
-      digest_ = org.eclipse.imp.pdb.facts.io.hash.ByteArray.EMPTY;
+      digest_ = com.google.protobuf.ByteString.EMPTY;
       name_ = "";
       nested_ = java.util.Collections.emptyList();
+      keywordArgs_ = java.util.Collections.emptyList();
       annotations_ = java.util.Collections.emptyList();
+      nestedDigest_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1255,9 +1358,7 @@ public final class PDBProtocolBuffers {
         output.writeEnum(1, type_.getNumber());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeTag(2, WireFormat.WIRETYPE_LENGTH_DELIMITED);
-        output.writeRawVarint32(digest_.getBytes().length);
-        output.writeRawBytes(digest_.getBytes());   
+        output.writeBytes(2, digest_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeBytes(3, getNameBytes());
@@ -1265,8 +1366,14 @@ public final class PDBProtocolBuffers {
       for (int i = 0; i < nested_.size(); i++) {
         output.writeMessage(4, nested_.get(i));
       }
+      for (int i = 0; i < keywordArgs_.size(); i++) {
+        output.writeMessage(5, keywordArgs_.get(i));
+      }
       for (int i = 0; i < annotations_.size(); i++) {
-        output.writeMessage(5, annotations_.get(i));
+        output.writeMessage(6, annotations_.get(i));
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeBytes(7, nestedDigest_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1282,9 +1389,8 @@ public final class PDBProtocolBuffers {
           .computeEnumSize(1, type_.getNumber());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream.computeTagSize(2) 
-        		+ com.google.protobuf.CodedOutputStream.computeRawVarint32Size(digest_.getBytes().length) 
-        		+ digest_.getBytes().length;
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, digest_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
@@ -1294,9 +1400,17 @@ public final class PDBProtocolBuffers {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(4, nested_.get(i));
       }
+      for (int i = 0; i < keywordArgs_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(5, keywordArgs_.get(i));
+      }
       for (int i = 0; i < annotations_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(5, annotations_.get(i));
+          .computeMessageSize(6, annotations_.get(i));
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(7, nestedDigest_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1407,6 +1521,7 @@ public final class PDBProtocolBuffers {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getNestedFieldBuilder();
+          getKeywordArgsFieldBuilder();
           getAnnotationsFieldBuilder();
         }
       }
@@ -1418,7 +1533,7 @@ public final class PDBProtocolBuffers {
         super.clear();
         type_ = org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BType.BOOL;
         bitField0_ = (bitField0_ & ~0x00000001);
-        digest_ = org.eclipse.imp.pdb.facts.io.hash.ByteArray.EMPTY;
+        digest_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000002);
         name_ = "";
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -1428,12 +1543,20 @@ public final class PDBProtocolBuffers {
         } else {
           nestedBuilder_.clear();
         }
+        if (keywordArgsBuilder_ == null) {
+          keywordArgs_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000010);
+        } else {
+          keywordArgsBuilder_.clear();
+        }
         if (annotationsBuilder_ == null) {
           annotations_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000010);
+          bitField0_ = (bitField0_ & ~0x00000020);
         } else {
           annotationsBuilder_.clear();
         }
+        nestedDigest_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
 
@@ -1483,15 +1606,28 @@ public final class PDBProtocolBuffers {
         } else {
           result.nested_ = nestedBuilder_.build();
         }
-        if (annotationsBuilder_ == null) {
+        if (keywordArgsBuilder_ == null) {
           if (((bitField0_ & 0x00000010) == 0x00000010)) {
-            annotations_ = java.util.Collections.unmodifiableList(annotations_);
+            keywordArgs_ = java.util.Collections.unmodifiableList(keywordArgs_);
             bitField0_ = (bitField0_ & ~0x00000010);
+          }
+          result.keywordArgs_ = keywordArgs_;
+        } else {
+          result.keywordArgs_ = keywordArgsBuilder_.build();
+        }
+        if (annotationsBuilder_ == null) {
+          if (((bitField0_ & 0x00000020) == 0x00000020)) {
+            annotations_ = java.util.Collections.unmodifiableList(annotations_);
+            bitField0_ = (bitField0_ & ~0x00000020);
           }
           result.annotations_ = annotations_;
         } else {
           result.annotations_ = annotationsBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.nestedDigest_ = nestedDigest_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1545,11 +1681,37 @@ public final class PDBProtocolBuffers {
             }
           }
         }
+        if (keywordArgsBuilder_ == null) {
+          if (!other.keywordArgs_.isEmpty()) {
+            if (keywordArgs_.isEmpty()) {
+              keywordArgs_ = other.keywordArgs_;
+              bitField0_ = (bitField0_ & ~0x00000010);
+            } else {
+              ensureKeywordArgsIsMutable();
+              keywordArgs_.addAll(other.keywordArgs_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.keywordArgs_.isEmpty()) {
+            if (keywordArgsBuilder_.isEmpty()) {
+              keywordArgsBuilder_.dispose();
+              keywordArgsBuilder_ = null;
+              keywordArgs_ = other.keywordArgs_;
+              bitField0_ = (bitField0_ & ~0x00000010);
+              keywordArgsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getKeywordArgsFieldBuilder() : null;
+            } else {
+              keywordArgsBuilder_.addAllMessages(other.keywordArgs_);
+            }
+          }
+        }
         if (annotationsBuilder_ == null) {
           if (!other.annotations_.isEmpty()) {
             if (annotations_.isEmpty()) {
               annotations_ = other.annotations_;
-              bitField0_ = (bitField0_ & ~0x00000010);
+              bitField0_ = (bitField0_ & ~0x00000020);
             } else {
               ensureAnnotationsIsMutable();
               annotations_.addAll(other.annotations_);
@@ -1562,7 +1724,7 @@ public final class PDBProtocolBuffers {
               annotationsBuilder_.dispose();
               annotationsBuilder_ = null;
               annotations_ = other.annotations_;
-              bitField0_ = (bitField0_ & ~0x00000010);
+              bitField0_ = (bitField0_ & ~0x00000020);
               annotationsBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getAnnotationsFieldBuilder() : null;
@@ -1570,6 +1732,9 @@ public final class PDBProtocolBuffers {
               annotationsBuilder_.addAllMessages(other.annotations_);
             }
           }
+        }
+        if (other.hasNestedDigest()) {
+          setNestedDigest(other.getNestedDigest());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1635,7 +1800,7 @@ public final class PDBProtocolBuffers {
       }
 
       // optional bytes digest = 2;
-      private org.eclipse.imp.pdb.facts.io.hash.ByteArray digest_ = org.eclipse.imp.pdb.facts.io.hash.ByteArray.EMPTY;
+      private com.google.protobuf.ByteString digest_ = com.google.protobuf.ByteString.EMPTY;
       /**
        * <code>optional bytes digest = 2;</code>
        */
@@ -1645,13 +1810,13 @@ public final class PDBProtocolBuffers {
       /**
        * <code>optional bytes digest = 2;</code>
        */
-      public org.eclipse.imp.pdb.facts.io.hash.ByteArray getDigest() {
+      public com.google.protobuf.ByteString getDigest() {
         return digest_;
       }
       /**
        * <code>optional bytes digest = 2;</code>
        */
-      public Builder setDigest(org.eclipse.imp.pdb.facts.io.hash.ByteArray value) {
+      public Builder setDigest(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
@@ -1984,13 +2149,253 @@ public final class PDBProtocolBuffers {
         return nestedBuilder_;
       }
 
-      // repeated .BValue.BAnnotation annotations = 5;
+      // repeated .BValue.BAnnotation keywordArgs = 5;
+      private java.util.List<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation> keywordArgs_ =
+        java.util.Collections.emptyList();
+      private void ensureKeywordArgsIsMutable() {
+        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+          keywordArgs_ = new java.util.ArrayList<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation>(keywordArgs_);
+          bitField0_ |= 0x00000010;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder> keywordArgsBuilder_;
+
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public java.util.List<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation> getKeywordArgsList() {
+        if (keywordArgsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(keywordArgs_);
+        } else {
+          return keywordArgsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public int getKeywordArgsCount() {
+        if (keywordArgsBuilder_ == null) {
+          return keywordArgs_.size();
+        } else {
+          return keywordArgsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation getKeywordArgs(int index) {
+        if (keywordArgsBuilder_ == null) {
+          return keywordArgs_.get(index);
+        } else {
+          return keywordArgsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public Builder setKeywordArgs(
+          int index, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation value) {
+        if (keywordArgsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureKeywordArgsIsMutable();
+          keywordArgs_.set(index, value);
+          onChanged();
+        } else {
+          keywordArgsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public Builder setKeywordArgs(
+          int index, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder builderForValue) {
+        if (keywordArgsBuilder_ == null) {
+          ensureKeywordArgsIsMutable();
+          keywordArgs_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          keywordArgsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public Builder addKeywordArgs(org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation value) {
+        if (keywordArgsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureKeywordArgsIsMutable();
+          keywordArgs_.add(value);
+          onChanged();
+        } else {
+          keywordArgsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public Builder addKeywordArgs(
+          int index, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation value) {
+        if (keywordArgsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureKeywordArgsIsMutable();
+          keywordArgs_.add(index, value);
+          onChanged();
+        } else {
+          keywordArgsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public Builder addKeywordArgs(
+          org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder builderForValue) {
+        if (keywordArgsBuilder_ == null) {
+          ensureKeywordArgsIsMutable();
+          keywordArgs_.add(builderForValue.build());
+          onChanged();
+        } else {
+          keywordArgsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public Builder addKeywordArgs(
+          int index, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder builderForValue) {
+        if (keywordArgsBuilder_ == null) {
+          ensureKeywordArgsIsMutable();
+          keywordArgs_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          keywordArgsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public Builder addAllKeywordArgs(
+          java.lang.Iterable<? extends org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation> values) {
+        if (keywordArgsBuilder_ == null) {
+          ensureKeywordArgsIsMutable();
+          super.addAll(values, keywordArgs_);
+          onChanged();
+        } else {
+          keywordArgsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public Builder clearKeywordArgs() {
+        if (keywordArgsBuilder_ == null) {
+          keywordArgs_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000010);
+          onChanged();
+        } else {
+          keywordArgsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public Builder removeKeywordArgs(int index) {
+        if (keywordArgsBuilder_ == null) {
+          ensureKeywordArgsIsMutable();
+          keywordArgs_.remove(index);
+          onChanged();
+        } else {
+          keywordArgsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder getKeywordArgsBuilder(
+          int index) {
+        return getKeywordArgsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder getKeywordArgsOrBuilder(
+          int index) {
+        if (keywordArgsBuilder_ == null) {
+          return keywordArgs_.get(index);  } else {
+          return keywordArgsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public java.util.List<? extends org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder> 
+           getKeywordArgsOrBuilderList() {
+        if (keywordArgsBuilder_ != null) {
+          return keywordArgsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(keywordArgs_);
+        }
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder addKeywordArgsBuilder() {
+        return getKeywordArgsFieldBuilder().addBuilder(
+            org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder addKeywordArgsBuilder(
+          int index) {
+        return getKeywordArgsFieldBuilder().addBuilder(
+            index, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .BValue.BAnnotation keywordArgs = 5;</code>
+       */
+      public java.util.List<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder> 
+           getKeywordArgsBuilderList() {
+        return getKeywordArgsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder> 
+          getKeywordArgsFieldBuilder() {
+        if (keywordArgsBuilder_ == null) {
+          keywordArgsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder>(
+                  keywordArgs_,
+                  ((bitField0_ & 0x00000010) == 0x00000010),
+                  getParentForChildren(),
+                  isClean());
+          keywordArgs_ = null;
+        }
+        return keywordArgsBuilder_;
+      }
+
+      // repeated .BValue.BAnnotation annotations = 6;
       private java.util.List<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation> annotations_ =
         java.util.Collections.emptyList();
       private void ensureAnnotationsIsMutable() {
-        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
           annotations_ = new java.util.ArrayList<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation>(annotations_);
-          bitField0_ |= 0x00000010;
+          bitField0_ |= 0x00000020;
          }
       }
 
@@ -1998,7 +2403,7 @@ public final class PDBProtocolBuffers {
           org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder> annotationsBuilder_;
 
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public java.util.List<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation> getAnnotationsList() {
         if (annotationsBuilder_ == null) {
@@ -2008,7 +2413,7 @@ public final class PDBProtocolBuffers {
         }
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public int getAnnotationsCount() {
         if (annotationsBuilder_ == null) {
@@ -2018,7 +2423,7 @@ public final class PDBProtocolBuffers {
         }
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation getAnnotations(int index) {
         if (annotationsBuilder_ == null) {
@@ -2028,7 +2433,7 @@ public final class PDBProtocolBuffers {
         }
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public Builder setAnnotations(
           int index, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation value) {
@@ -2045,7 +2450,7 @@ public final class PDBProtocolBuffers {
         return this;
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public Builder setAnnotations(
           int index, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder builderForValue) {
@@ -2059,7 +2464,7 @@ public final class PDBProtocolBuffers {
         return this;
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public Builder addAnnotations(org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation value) {
         if (annotationsBuilder_ == null) {
@@ -2075,7 +2480,7 @@ public final class PDBProtocolBuffers {
         return this;
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public Builder addAnnotations(
           int index, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation value) {
@@ -2092,7 +2497,7 @@ public final class PDBProtocolBuffers {
         return this;
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public Builder addAnnotations(
           org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder builderForValue) {
@@ -2106,7 +2511,7 @@ public final class PDBProtocolBuffers {
         return this;
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public Builder addAnnotations(
           int index, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder builderForValue) {
@@ -2120,7 +2525,7 @@ public final class PDBProtocolBuffers {
         return this;
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public Builder addAllAnnotations(
           java.lang.Iterable<? extends org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation> values) {
@@ -2134,12 +2539,12 @@ public final class PDBProtocolBuffers {
         return this;
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public Builder clearAnnotations() {
         if (annotationsBuilder_ == null) {
           annotations_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000010);
+          bitField0_ = (bitField0_ & ~0x00000020);
           onChanged();
         } else {
           annotationsBuilder_.clear();
@@ -2147,7 +2552,7 @@ public final class PDBProtocolBuffers {
         return this;
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public Builder removeAnnotations(int index) {
         if (annotationsBuilder_ == null) {
@@ -2160,14 +2565,14 @@ public final class PDBProtocolBuffers {
         return this;
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder getAnnotationsBuilder(
           int index) {
         return getAnnotationsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder getAnnotationsOrBuilder(
           int index) {
@@ -2177,7 +2582,7 @@ public final class PDBProtocolBuffers {
         }
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public java.util.List<? extends org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder> 
            getAnnotationsOrBuilderList() {
@@ -2188,14 +2593,14 @@ public final class PDBProtocolBuffers {
         }
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder addAnnotationsBuilder() {
         return getAnnotationsFieldBuilder().addBuilder(
             org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.getDefaultInstance());
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder addAnnotationsBuilder(
           int index) {
@@ -2203,7 +2608,7 @@ public final class PDBProtocolBuffers {
             index, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.getDefaultInstance());
       }
       /**
-       * <code>repeated .BValue.BAnnotation annotations = 5;</code>
+       * <code>repeated .BValue.BAnnotation annotations = 6;</code>
        */
       public java.util.List<org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder> 
            getAnnotationsBuilderList() {
@@ -2216,12 +2621,48 @@ public final class PDBProtocolBuffers {
           annotationsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotation.Builder, org.eclipse.imp.pdb.facts.tracking.PDBProtocolBuffers.BValue.BAnnotationOrBuilder>(
                   annotations_,
-                  ((bitField0_ & 0x00000010) == 0x00000010),
+                  ((bitField0_ & 0x00000020) == 0x00000020),
                   getParentForChildren(),
                   isClean());
           annotations_ = null;
         }
         return annotationsBuilder_;
+      }
+
+      // optional bytes nestedDigest = 7;
+      private com.google.protobuf.ByteString nestedDigest_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes nestedDigest = 7;</code>
+       */
+      public boolean hasNestedDigest() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>optional bytes nestedDigest = 7;</code>
+       */
+      public com.google.protobuf.ByteString getNestedDigest() {
+        return nestedDigest_;
+      }
+      /**
+       * <code>optional bytes nestedDigest = 7;</code>
+       */
+      public Builder setNestedDigest(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+        nestedDigest_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes nestedDigest = 7;</code>
+       */
+      public Builder clearNestedDigest() {
+        bitField0_ = (bitField0_ & ~0x00000040);
+        nestedDigest_ = getDefaultInstance().getNestedDigest();
+        onChanged();
+        return this;
       }
 
       // @@protoc_insertion_point(builder_scope:BValue)
@@ -2254,18 +2695,19 @@ public final class PDBProtocolBuffers {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\tpdb.proto\"\372\002\n\006BValue\022\033\n\004type\030\001 \001(\0162\r.B" +
+      "\n\tpdb.proto\"\272\003\n\006BValue\022\033\n\004type\030\001 \001(\0162\r.B" +
       "Value.BType\022\016\n\006digest\030\002 \001(\014\022\014\n\004name\030\003 \001(" +
-      "\t\022\027\n\006nested\030\004 \003(\0132\007.BValue\022(\n\013annotation" +
-      "s\030\005 \003(\0132\023.BValue.BAnnotation\0323\n\013BAnnotat" +
-      "ion\022\014\n\004name\030\001 \001(\t\022\026\n\005value\030\002 \001(\0132\007.BValu" +
-      "e\"\274\001\n\005BType\022\010\n\004BOOL\020\001\022\013\n\007INTEGER\020\002\022\014\n\010RA" +
-      "TIONAL\020\003\022\010\n\004REAL\020\004\022\n\n\006STRING\020\005\022\r\n\tDATE_T" +
-      "IME\020\006\022\023\n\017SOURCE_LOCATION\020\007\022\022\n\016EXTERNAL_V" +
-      "ALUE\020\010\022\010\n\004LIST\020\t\022\007\n\003MAP\020\n\022\007\n\003SET\020\013\022\010\n\004NO" +
-      "DE\020\014\022\017\n\013CONSTRUCTOR\020\r\022\t\n\005TUPLE\020\016B8\n\"org.",
-      "eclipse.imp.pdb.facts.trackingB\022PDBProto" +
-      "colBuffers"
+      "\t\022\027\n\006nested\030\004 \003(\0132\007.BValue\022(\n\013keywordArg" +
+      "s\030\005 \003(\0132\023.BValue.BAnnotation\022(\n\013annotati" +
+      "ons\030\006 \003(\0132\023.BValue.BAnnotation\022\024\n\014nested" +
+      "Digest\030\007 \001(\014\0323\n\013BAnnotation\022\014\n\004name\030\001 \001(" +
+      "\t\022\026\n\005value\030\002 \001(\0132\007.BValue\"\274\001\n\005BType\022\010\n\004B" +
+      "OOL\020\001\022\013\n\007INTEGER\020\002\022\014\n\010RATIONAL\020\003\022\010\n\004REAL" +
+      "\020\004\022\n\n\006STRING\020\005\022\r\n\tDATE_TIME\020\006\022\023\n\017SOURCE_" +
+      "LOCATION\020\007\022\022\n\016EXTERNAL_VALUE\020\010\022\010\n\004LIST\020\t",
+      "\022\007\n\003MAP\020\n\022\007\n\003SET\020\013\022\010\n\004NODE\020\014\022\017\n\013CONSTRUC" +
+      "TOR\020\r\022\t\n\005TUPLE\020\016B8\n\"org.eclipse.imp.pdb." +
+      "facts.trackingB\022PDBProtocolBuffers"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -2277,7 +2719,7 @@ public final class PDBProtocolBuffers {
           internal_static_BValue_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_BValue_descriptor,
-              new java.lang.String[] { "Type", "Digest", "Name", "Nested", "Annotations", });
+              new java.lang.String[] { "Type", "Digest", "Name", "Nested", "KeywordArgs", "Annotations", "NestedDigest", });
           internal_static_BValue_BAnnotation_descriptor =
             internal_static_BValue_descriptor.getNestedTypes().get(0);
           internal_static_BValue_BAnnotation_fieldAccessorTable = new

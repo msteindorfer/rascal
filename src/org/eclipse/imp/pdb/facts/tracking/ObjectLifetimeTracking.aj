@@ -56,6 +56,8 @@ public aspect ObjectLifetimeTracking {
 	
 	static boolean isSharingEnabled = System.getProperties().containsKey("sharingEnabled");
 
+	final static protected boolean isOrderUnorderedDisabled = System.getProperties().containsKey("orderUnorderedDisabled");
+	
 	public static enum TrackingMode {
 		PROFILE_HASH_SIG,
 		PROFILE_FULL_SIG, // equals TrackingMode.SAMPLE && SAMPLE_FREQUENCY == 1;
@@ -300,7 +302,7 @@ public aspect ObjectLifetimeTracking {
 			final TrackingProtocolBuffers.ObjectLifetime.Builder allocationRecBldr = 
 					TrackingProtocolBuffers.ObjectLifetime.newBuilder()
 						.setTag(eventTimestamp)
-						.setIsRedundant(isRedundant)
+						.setIsRedundant(isRedundant && !isOrderUnorderedDisabled)
 						.setCtorTime(eventTimestamp);
 			
 			final TrackingProtocolBuffers.TagMap.Builder tagInfoBldr = 
@@ -318,7 +320,7 @@ public aspect ObjectLifetimeTracking {
 					 */
 					byte[] digest = new byte[] {};
 					
-					if (isRedundant) {
+					if (isRedundant && !isOrderUnorderedDisabled) {
 						// lookup hash for old object
 						digest = hashWriter.calculateHash((IValue) oldObject);
 					} else {
