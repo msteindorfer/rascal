@@ -51,6 +51,9 @@ public aspect ObjectLifetimeTracking {
 		}
 	}
 
+	static boolean isRedundancyProfilingEnabled = System.getProperties().containsKey(
+					"redundancyProfilingEnabled");
+	
 	static boolean isSharingEnabled = System.getProperties().containsKey("sharingEnabled");
 
 	public static enum TrackingMode {
@@ -153,9 +156,13 @@ public aspect ObjectLifetimeTracking {
 			}
 		}));
 		
-		trackNewObjectUnconditionally(null, BoolValue.TRUE, null, BCITracker.getAndIncrementCount(), false);
-		trackNewObjectUnconditionally(null, BoolValue.FALSE, null, BCITracker.getAndIncrementCount(), false);
-		logger.info("Boolean constants are not in the object pool.");
+		if (isRedundancyProfilingEnabled) {
+			trackNewObjectUnconditionally(null, BoolValue.TRUE, null,
+							BCITracker.getAndIncrementCount(), false);
+			trackNewObjectUnconditionally(null, BoolValue.FALSE, null,
+							BCITracker.getAndIncrementCount(), false);
+			logger.info("Boolean constants are not in the object pool.");
+		}
 	}
 	
 	/**
@@ -167,10 +174,11 @@ public aspect ObjectLifetimeTracking {
 	 * 
 	 * With the call pointcut, we don not have to rely upon factory for each IValue implementation.
 	 */
-	pointcut allocationWithFactory() : execution(static IValue+ *.new*(..)) && !execution(static IValue+ *.newBool*(..));
+//	pointcut allocationWithFactory() : execution(static IValue+ *.new*(..)) && !execution(static IValue+ *.newBool*(..));
 	pointcut allocationWithConstructor() : 
 		(
-				call(org.eclipse.imp.pdb.facts.IValue+.new(..)) 
+				if(isRedundancyProfilingEnabled || isSharingEnabled)
+				&& call(org.eclipse.imp.pdb.facts.IValue+.new(..)) 
 				&& !call(org.eclipse.imp.pdb.facts.IExternalValue+.new(..))
 				&& !call(org.eclipse.imp.pdb.facts.impl.primitive.BoolValue.*.new(..))
 				&& !call(org.rascalmpl.interpreter.result.ICallableValue+.new(..))
@@ -179,9 +187,10 @@ public aspect ObjectLifetimeTracking {
 //	Object around() : allocationWithFactory() {
 	Object around() : allocationWithConstructor() {
 		final Object newObject = proceed();
-		final long eventTimestamp = BCITracker.getAndIncrementCount();
 		
-		if (isSharingEnabled) {
+		if (isRedundancyProfilingEnabled && isSharingEnabled) {
+			final long eventTimestamp = BCITracker.getAndIncrementCount();
+			
 			WeakReference<Object> poolObjectReferene = getFromObjectPool(newObject);
 			
 			if (poolObjectReferene == null) {
@@ -220,9 +229,47 @@ public aspect ObjectLifetimeTracking {
 					return newObject;
 				}
 			}	
-		} else {
+		} else if (isRedundancyProfilingEnabled) {
+			final long eventTimestamp = BCITracker.getAndIncrementCount();
+			
 			trackNewObject(thisEnclosingJoinPointStaticPart, newObject, null, eventTimestamp, false);
 			return newObject;			
+		} else if (isSharingEnabled) {
+			// the same as the first if-statement but without trackNewObject(..) calls.
+			WeakReference<Object> poolObjectReferene = getFromObjectPool(newObject);
+			
+			if (poolObjectReferene == null) {
+				cacheMissCount++;
+				if (logCacheBehavior) {
+					logger.fine("CACHE MISS");
+					logObjectDetails(newObject);
+				}
+				
+				putIntoObjectPool(newObject);
+				return newObject;
+			} else {
+				Object weaklyReferencedObject = poolObjectReferene.get();
+				
+				if (weaklyReferencedObject != null) {
+					cacheHitCount++;
+					if (logCacheBehavior) {
+						logger.fine("CACHE HIT");
+						logObjectDetails(newObject);
+					}
+					
+					return weaklyReferencedObject;
+				} else {
+					cacheRaceCount++;
+					if (logCacheBehavior) {
+						logger.fine("CACHE RACE");
+						logObjectDetails(newObject);
+					}
+					
+					return newObject;
+				}
+			}			
+		} else {
+			return newObject;
 		}
 	}
 
@@ -594,7 +641,7 @@ public aspect ObjectLifetimeTracking {
 				&& !execution(boolean org.rascalmpl.interpreter.result.ICallableValue+.equals(..))
 			);
 		
-		pointcut topEqualsOutsideAdvice() : !cflow(adviceexecution()) && equalsOutsideAdvice() && !cflowbelow(equalsOutsideAdvice());
+		pointcut topEqualsOutsideAdvice() : if(isRedundancyProfilingEnabled) && !cflow(adviceexecution()) && equalsOutsideAdvice() && !cflowbelow(equalsOutsideAdvice());
 		
 		pointcut lowerEqualsCallOutsideAdvice() : cflowbelow(equalsOutsideAdvice()) && ( 
 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) 
@@ -614,7 +661,7 @@ public aspect ObjectLifetimeTracking {
 				&& !execution(boolean org.rascalmpl.interpreter.result.ICallableValue+.equals(..))
 			);	
 
-		pointcut topIsEqualOutsideAdvice() : !cflow(adviceexecution()) && isEqualOutsideAdvice() && !cflowbelow(isEqualOutsideAdvice());
+		pointcut topIsEqualOutsideAdvice() : if(isRedundancyProfilingEnabled) && !cflow(adviceexecution()) && isEqualOutsideAdvice() && !cflowbelow(isEqualOutsideAdvice());
 
 		pointcut lowerIsEqualCallOutsideAdvice() : cflowbelow(isEqualOutsideAdvice()) && ( 
  				execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) 
