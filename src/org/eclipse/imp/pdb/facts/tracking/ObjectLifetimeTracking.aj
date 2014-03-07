@@ -515,7 +515,7 @@ public aspect ObjectLifetimeTracking {
 				&& !execution(boolean org.rascalmpl.interpreter.result.ICallableValue+.equals(..))
 			);
 
-		pointcut topEqualsInsideAdvice() : cflow(adviceexecution()) && equalsInsideAdvice() && !cflowbelow(equalsInsideAdvice());
+		pointcut topEqualsInsideAdvice() : if(isRedundancyProfilingEnabled) && cflow(adviceexecution()) && equalsInsideAdvice() && !cflowbelow(equalsInsideAdvice());
 		
 		pointcut lowerEqualsCallInsideAdvice() : cflowbelow(equalsInsideAdvice()) && ( 
 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) 
@@ -524,7 +524,11 @@ public aspect ObjectLifetimeTracking {
 			);
 		
 		boolean around(Object v1, Object v2) : topEqualsInsideAdvice() && target(v1) && args(v2) {		
-			if (v1 == v2) throw new RuntimeException("Equals with aliased value: " + v1.toString());
+			/*
+			 * TODO: top level equals not precise enough.
+			 * Fails on RationalValue:344 hashCode(..), because equals(..) is called in hashCode(..)
+			 */
+//			if (v1 == v2) throw new RuntimeException("Equals with aliased value: " + v1.toString());
 			
 			long timestamp = BCITracker.getCount();	
 			

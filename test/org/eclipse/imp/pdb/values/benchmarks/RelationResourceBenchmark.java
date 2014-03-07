@@ -11,7 +11,10 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.values.benchmarks;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -85,42 +88,107 @@ public class RelationResourceBenchmark {
 	
 	@Test
 	public void closureStarJHotDraw52() {
+		long startTime = System.nanoTime();
+		
 		final String relationResource = "rsf/JHotDraw52.rsf_CALL";
 		final ISet testSet = readRelationResource(relationResource);
 		
 		testSet.asRelation().closureStar();
+		
+		long endTime = System.nanoTime();
+		String outputString = String.format("%d", endTime - startTime);
+
+		try {
+			java.nio.file.Files.write(Paths.get("target/_timeBenchmark.txt"),
+							outputString.getBytes("UTF-8"), StandardOpenOption.CREATE,
+							StandardOpenOption.TRUNCATE_EXISTING);
+		} catch (IOException e1) {
+			throw new RuntimeException(e1);
+		}
 	}
 	
 	@Test
 	public void closureStarJDK140AWT() {
+		long startTime = System.nanoTime();
+		
 		final String relationResource = "rsf/JDK140AWT.rsf_CALL";
 		final ISet testSet = readRelationResource(relationResource);
 		
 		testSet.asRelation().closureStar();
+		
+		long endTime = System.nanoTime();
+		String outputString = String.format("%d", endTime - startTime);
+
+		try {
+			java.nio.file.Files.write(Paths.get("target/_timeBenchmark.txt"),
+							outputString.getBytes("UTF-8"), StandardOpenOption.CREATE,
+							StandardOpenOption.TRUNCATE_EXISTING);
+		} catch (IOException e1) {
+			throw new RuntimeException(e1);
+		}
 	}
 	
 	@Test
 	public void closureStarjdk14v2() {
+		long startTime = System.nanoTime();
+		
 		final String relationResource = "rsf/jdk14v2.rsf_CALL";
 		final ISet testSet = readRelationResource(relationResource);
 		
 		testSet.asRelation().closureStar();
+		
+		long endTime = System.nanoTime();
+		String outputString = String.format("%d", endTime - startTime);
+
+		try {
+			java.nio.file.Files.write(Paths.get("target/_timeBenchmark.txt"),
+							outputString.getBytes("UTF-8"), StandardOpenOption.CREATE,
+							StandardOpenOption.TRUNCATE_EXISTING);
+		} catch (IOException e1) {
+			throw new RuntimeException(e1);
+		}
 	}
 
 	@Test
 	public void closureStarEclipse202a() {
+		long startTime = System.nanoTime();
+		
 		final String relationResource = "rsf/Eclipse202a.rsf_CALL";
 		final ISet testSet = readRelationResource(relationResource);
 		
 		testSet.asRelation().closureStar();
+		
+		long endTime = System.nanoTime();
+		String outputString = String.format("%d", endTime - startTime);
+
+		try {
+			java.nio.file.Files.write(Paths.get("target/_timeBenchmark.txt"),
+							outputString.getBytes("UTF-8"), StandardOpenOption.CREATE,
+							StandardOpenOption.TRUNCATE_EXISTING);
+		} catch (IOException e1) {
+			throw new RuntimeException(e1);
+		}
 	}
 	
 	@Test
 	public void closureStarJWAM16FullAndreas() {
+		long startTime = System.nanoTime();
+		
 		final String relationResource = "rsf/JWAM16FullAndreas.rsf_CALL";
 		final ISet testSet = readRelationResource(relationResource);
 		
 		testSet.asRelation().closureStar();
+		
+		long endTime = System.nanoTime();
+		String outputString = String.format("%d", endTime - startTime);
+
+		try {
+			java.nio.file.Files.write(Paths.get("target/_timeBenchmark.txt"),
+							outputString.getBytes("UTF-8"), StandardOpenOption.CREATE,
+							StandardOpenOption.TRUNCATE_EXISTING);
+		} catch (IOException e1) {
+			throw new RuntimeException(e1);
+		}
 	}	
 		
 }

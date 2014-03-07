@@ -14,6 +14,9 @@ package org.eclipse.imp.pdb.values.benchmarks;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -65,8 +68,21 @@ public class MaximalSharingBenchmark {
 	}
 	
 	public void testSingleTreeWithShareableElements(int depth) {
+		long startTime = System.nanoTime();
+		
 		final IValue one = createTreeWithShareableElements(false, depth);
 		assertTrue(one != null);
+		
+		long endTime = System.nanoTime();
+		String outputString = String.format("%d", endTime - startTime);
+
+		try {
+			java.nio.file.Files.write(Paths.get("target/_timeBenchmark.txt"),
+							outputString.getBytes("UTF-8"), StandardOpenOption.CREATE,
+							StandardOpenOption.TRUNCATE_EXISTING);
+		} catch (IOException e1) {
+			throw new RuntimeException(e1);
+		}		
 	}
 	
 	/**
@@ -176,8 +192,21 @@ public class MaximalSharingBenchmark {
 	}	
 		
 	public void testSingleTreeWithUniqueElements(int depth) {
+		long startTime = System.nanoTime();
+		
 		final IValue one = createTreeWithUniqueElements(false, depth);
 		assertTrue(one != null);
+
+		long endTime = System.nanoTime();
+		String outputString = String.format("%d", endTime - startTime);
+
+		try {
+			java.nio.file.Files.write(Paths.get("target/_timeBenchmark.txt"),
+							outputString.getBytes("UTF-8"), StandardOpenOption.CREATE,
+							StandardOpenOption.TRUNCATE_EXISTING);
+		} catch (IOException e1) {
+			throw new RuntimeException(e1);
+		}
 	}
 	
 	/**
