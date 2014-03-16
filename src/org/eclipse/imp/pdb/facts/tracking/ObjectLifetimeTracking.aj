@@ -756,8 +756,13 @@ public aspect ObjectLifetimeTracking {
 				logger.finest("[isEqualCallOutsideAdvice]");
 				printInfo(thisJoinPoint, thisEnclosingJoinPointStaticPart, v1, v2);
 			}	
-				
-			if (v1 == v2 && equalsOnAliasMode == EqualsOnAliasMode.COUNT_AS_REFERENCE_EQUALITY) {
+
+			// dedice if a isEqual(..) could be substituted by a equals(..)
+			byte[] h1 = hashWriter.calculateHash((IValue) v1);
+			byte[] h2 = hashWriter.calculateHash((IValue) v2);	
+			boolean isStructural = Arrays.equals(h1, h1);			
+
+			if (isSharingEnabled && isStructural || v1 == v2 && equalsOnAliasMode == EqualsOnAliasMode.COUNT_AS_REFERENCE_EQUALITY) {
 				result = (v1 == v2);
 				// Book keeping
 				deepReferenceEqualityCount++;
@@ -770,8 +775,8 @@ public aspect ObjectLifetimeTracking {
 					logger.warning(String.format("Class does not fast-fail on reference equality: %s", v1.getClass().getName()));
 				}
 			}			
-						
-			writeTrace(timestamp, v1, v2, result, false);
+				
+			writeTrace(timestamp, v1, v2, result, isStructural);
 			
 			// Bottom-up printing
 //			if (!result)
