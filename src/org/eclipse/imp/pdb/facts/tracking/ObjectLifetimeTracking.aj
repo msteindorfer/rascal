@@ -760,12 +760,16 @@ public aspect ObjectLifetimeTracking {
 			// dedice if a isEqual(..) could be substituted by a equals(..)
 			byte[] h1 = hashWriter.calculateHash((IValue) v1);
 			byte[] h2 = hashWriter.calculateHash((IValue) v2);	
-			boolean isStructural = Arrays.equals(h1, h1);			
-
-			if (isSharingEnabled && isStructural || v1 == v2 && equalsOnAliasMode == EqualsOnAliasMode.COUNT_AS_REFERENCE_EQUALITY) {
+			boolean isStructural = Arrays.equals(h1, h2);			
+			
+			if (v1 == v2 && equalsOnAliasMode == EqualsOnAliasMode.COUNT_AS_REFERENCE_EQUALITY) {
 				result = (v1 == v2);
 				// Book keeping
 				deepReferenceEqualityCount++;
+			} else if (isStructural) {
+				result = true;
+				// Book keeping
+				deepReferenceEqualityCount++;				
 			} else {
 				result = proceed(v1, v2);
 				// Book keeping
@@ -776,7 +780,7 @@ public aspect ObjectLifetimeTracking {
 				}
 			}			
 				
-			writeTrace(timestamp, v1, v2, result, isStructural);
+			writeTrace(timestamp, v1, v2, result, false); // TODO: think about using <isStructural> and merging equals(..) and isEqual(..)
 			
 			// Bottom-up printing
 //			if (!result)
@@ -793,10 +797,19 @@ public aspect ObjectLifetimeTracking {
 
 			boolean result;
 			
+			// dedice if a isEqual(..) could be substituted by a equals(..)
+			byte[] h1 = hashWriter.calculateHash((IValue) v1);
+			byte[] h2 = hashWriter.calculateHash((IValue) v2);	
+			boolean isStructural = Arrays.equals(h1, h2);	
+			
 			if (v1 == v2 && equalsOnAliasMode == EqualsOnAliasMode.COUNT_AS_REFERENCE_EQUALITY) {
 				result = (v1 == v2);
 				// Book keeping
 				deepReferenceEqualityCount++;
+			} else if (isStructural) {
+				result = true;
+				// Book keeping
+				deepReferenceEqualityCount++;			
 			} else {
 				final long oldDeepEqualityCount = deepEqualityCount;
 				final long oldDeepReferenceEqualityCount = deepReferenceEqualityCount;
