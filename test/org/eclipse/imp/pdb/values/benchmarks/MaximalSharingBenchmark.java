@@ -67,6 +67,26 @@ public class MaximalSharingBenchmark {
 		testSingleTreeWithShareableElements(20);	
 	}
 	
+	@Test
+	public void testSingleTreeWithShareableElements_25() {
+		testSingleTreeWithShareableElements(25);	
+	}
+	
+	@Test
+	public void testSingleTreeWithShareableElements_30() {
+		testSingleTreeWithShareableElements(30);	
+	}
+	
+	@Test
+	public void testSingleTreeWithShareableElements_35() {
+		testSingleTreeWithShareableElements(35);	
+	}
+		
+	@Test
+	public void testSingleTreeWithShareableElements_40() {
+		testSingleTreeWithShareableElements(40);	
+	}	
+	
 	public void testSingleTreeWithShareableElements(int depth) {
 		long startTime = System.nanoTime();
 		
@@ -189,7 +209,27 @@ public class MaximalSharingBenchmark {
 	@Test
 	public void testSingleTreeWithUniqueElements_20() {
 		testSingleTreeWithUniqueElements(20);	
+	}
+	
+	@Test
+	public void testSingleTreeWithUniqueElements_25() {
+		testSingleTreeWithUniqueElements(25);	
 	}	
+
+	@Test
+	public void testSingleTreeWithUniqueElements_30() {
+		testSingleTreeWithUniqueElements(30);	
+	}	
+
+	@Test
+	public void testSingleTreeWithUniqueElements_35() {
+		testSingleTreeWithUniqueElements(35);	
+	}	
+	
+	@Test
+	public void testSingleTreeWithUniqueElements_40() {
+		testSingleTreeWithUniqueElements(40);	
+	}		
 		
 	public void testSingleTreeWithUniqueElements(int depth) {
 		long startTime = System.nanoTime();
