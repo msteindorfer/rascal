@@ -312,12 +312,9 @@ public aspect ObjectLifetimeTracking {
 			/*
 			 * Digest Calculation (Expensive)
 			 */
-			final Runnable expensiveTask = new Runnable() {
+			final Runnable digestCalculationTask = new Runnable() {
 				@Override
 				public void run() {
-					/*
-					 * Digest calculation (expensive)
-					 */
 					byte[] digest = new byte[] {};
 					
 					if (isRedundant && !isOrderUnorderedDisabled) {
@@ -338,24 +335,33 @@ public aspect ObjectLifetimeTracking {
 							break;
 						}						
 					}
-					tagInfoBldr.setDigest(toHexString(digest));
+//					tagInfoBldr.setDigest(toHexString(digest));
+					allocationRecBldr.setDigest(toHexString(digest));
+				}
+			};
 
-					/*		
-					 * Measure Additional Memory Consumption (Expensive and Memory Intensive)
-					 */
-					allocationRecBldr.setMeasuredSizeInBytes(measureObjectSize(newObject));
-
-					if (!isSharingEnabled) {						
-						allocationRecBldr.setRecursiveReferenceEqualitiesEstimate(
-								hashWriter.estimateReferenceEqualities((IValue) newObject));
-					}				
+			/*		
+			 * Measure Additional Memory Consumption (Expensive and Memory Intensive)
+			 */
+			final Runnable memoryCalculationTask = new Runnable() {
+				@Override
+				public void run() {
+					allocationRecBldr.setMeasuredSizeInBytes(measureObjectSize(newObject));					
 				}
 			};
 			
 			/*
 			 * Execute task and block until result is ready.
 			 */
-			expensiveTask.run();
+			if (isSharingEnabled) {
+				memoryCalculationTask.run();	
+			} else {
+				digestCalculationTask.run();
+				memoryCalculationTask.run();
+				
+				allocationRecBldr.setRecursiveReferenceEqualitiesEstimate(
+						hashWriter.estimateReferenceEqualities((IValue) newObject));
+			}				
 				
 			// Serialize to file 
 			try {
@@ -371,9 +377,12 @@ public aspect ObjectLifetimeTracking {
 //				System.out.println(allocationRecBldr.build().toString());							
 				
 				// Tag related data
-				tagInfoBldr
-					.build()
-					.writeDelimitedTo(tagMapOutputStream);
+				
+//				if (!isSharingEnabled) {
+//					tagInfoBldr
+//						.build()
+//						.writeDelimitedTo(tagMapOutputStream);
+//				}	
 				
 				// [print] Tag related data
 //				System.out.println(tagInfoBldr.build().toString());				
