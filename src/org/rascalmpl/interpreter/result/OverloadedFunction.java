@@ -47,6 +47,11 @@ import org.rascalmpl.interpreter.types.RascalTypeFactory;
 public class OverloadedFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
 
+	@Override
+	public IValue intern() {
+		throw new UnsupportedOperationException();
+	}
+	
 	private final List<AbstractFunction> primaryCandidates; // it should be a list to allow proper shadowing
 	private final List<AbstractFunction> defaultCandidates; // it should be a list to allow proper shadowing
 	private final String name;

@@ -45,6 +45,11 @@ public class ConstructorFunction extends NamedFunction {
 		this.keyArgs = keyargs;
 		this.constructorType = constructorType;
 	}
+	
+	@Override
+	public IValue intern() {
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public ConstructorFunction cloneInto(Environment env) {

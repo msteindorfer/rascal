@@ -57,6 +57,11 @@ public abstract class BoolValue extends AbstractValue implements IBool {
 			public IBool implies(IBool other) {
 				return other;
 			}
+			
+			@Override
+			public IBool intern() {
+				return this;
+			}
 		};
 	}
 	
@@ -97,6 +102,11 @@ public abstract class BoolValue extends AbstractValue implements IBool {
 
 			public int hashCode() {
 				return 2;
+			}
+			
+			@Override
+			public IBool intern() {
+				return this;
 			}
 		};
 	}

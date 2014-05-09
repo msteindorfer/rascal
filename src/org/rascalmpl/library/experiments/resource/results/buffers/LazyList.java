@@ -41,6 +41,11 @@ public class LazyList implements IList, IExternalValue {
 	}
 
 	@Override
+	public IValue intern() {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
 	public Type getType() {
 		return TypeFactory.getInstance().listType(elementType);
 	}

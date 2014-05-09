@@ -35,6 +35,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	protected final BigInteger value;
 	
+	@Override
+	public IInteger intern() {
+		return (IInteger) org.rascalmpl.values.ValueFactoryFactory.intern(this);
+	}
+	
 	/*package*/ BigIntegerValue(BigInteger value){
 		super();
 		if(value.equals(BigInteger.ZERO))

@@ -32,6 +32,11 @@ public abstract class ResourceResult extends Result<IValue> implements IExternal
 	}
 
 	@Override
+	public IValue intern() {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		// TODO Auto-generated method stub
 		return null;

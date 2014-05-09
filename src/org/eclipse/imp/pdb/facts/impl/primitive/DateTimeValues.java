@@ -38,11 +38,16 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	private final static Type DATE_TIME_TYPE = TypeFactory.getInstance().dateTimeType();
 	
 	/*package*/ static IDateTime newDate(int year, int month, int day) {
-		return new DateTimeValues.DateValue(year, month, day);
+		return new DateTimeValues.DateValue(year, month, day).intern();
 	}
 	
 	private static class DateValue extends AbstractValue implements IDateTime {
 
+		@Override
+		public IDateTime intern() {
+			return (IDateTime) org.rascalmpl.values.ValueFactoryFactory.intern(this);
+		}
+		
 		private int year;
 		private int month;
 		private int day;
@@ -266,16 +271,21 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	/*package*/ static IDateTime newTime(int hour, int minute, int second, int millisecond) {
-		return new DateTimeValues.TimeValue(hour, minute, second, millisecond);
+		return new DateTimeValues.TimeValue(hour, minute, second, millisecond).intern();
 	}
 
 	/*package*/ static IDateTime newTime(int hour, int minute, int second, int millisecond,
 						  int hourOffset, int minuteOffset) {
-		return new DateTimeValues.TimeValue(hour, minute, second, millisecond, hourOffset, minuteOffset);
+		return new DateTimeValues.TimeValue(hour, minute, second, millisecond, hourOffset, minuteOffset).intern();
 	}
 	
 	private static class TimeValue extends AbstractValue implements IDateTime {
 
+		@Override
+		public IDateTime intern() {
+			return (IDateTime) org.rascalmpl.values.ValueFactoryFactory.intern(this);
+		}
+		
 		private int hour;
 		private int minute;
 		private int second;
@@ -586,21 +596,26 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	/*package*/ static IDateTime newDateTime(int year, int month, int day, int hour,
 							  int minute, int second, int millisecond) {
-		return new DateTimeValues.DateTimeValue(year, month, day, hour, minute, second, millisecond);
+		return new DateTimeValues.DateTimeValue(year, month, day, hour, minute, second, millisecond).intern();
 	}
 
 	/*package*/ static IDateTime newDateTime(int year, int month, int day, int hour,
 							  int minute, int second, int millisecond, int hourOffset,
 							  int minuteOffset) {
-		return new DateTimeValues.DateTimeValue(year, month, day, hour, minute, second, millisecond, hourOffset, minuteOffset);
+		return new DateTimeValues.DateTimeValue(year, month, day, hour, minute, second, millisecond, hourOffset, minuteOffset).intern();
 	}
 
 	/*package*/ static IDateTime newDateTime(long instant) {
-		return new DateTimeValues.DateTimeValue(instant);
+		return new DateTimeValues.DateTimeValue(instant).intern();
 	}
 	
 	private static class DateTimeValue extends AbstractValue implements IDateTime {
 
+		@Override
+		public IDateTime intern() {
+			return (IDateTime) org.rascalmpl.values.ValueFactoryFactory.intern(this);
+		}
+		
 		private int year;
 		private int month;
 		private int day;

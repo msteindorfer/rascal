@@ -35,7 +35,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final ShareableValuesHashMap data;
 	
 	/*package*/ static IMap newMap(Type mapType, ShareableValuesHashMap data) {
-		return new Map(mapType, data);
+		return new Map(mapType, data).intern();
+	}
+	
+	@Override
+	public IMap intern() {
+		return (IMap) org.rascalmpl.values.ValueFactoryFactory.intern(this);
 	}
 	
 	private Map(Type mapType, ShareableValuesHashMap data) {

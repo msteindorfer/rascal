@@ -68,6 +68,10 @@ public class JavaMethod extends NamedFunction {
 		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
 	}
 	
+	@Override
+	public IValue intern() {
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public JavaMethod cloneInto(Environment env) {

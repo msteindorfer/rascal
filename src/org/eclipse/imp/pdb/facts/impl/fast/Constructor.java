@@ -41,7 +41,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final IValue[] children;
 
 	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children) {
-		return new Constructor(constructorType, children); 
+		return new Constructor(constructorType, children).intern(); 
+	}
+	
+	@Override
+	public IConstructor intern() {
+		return (IConstructor) org.rascalmpl.values.ValueFactoryFactory.intern(this);
 	}
 	
 	private Constructor(Type constructorType, IValue[] children){

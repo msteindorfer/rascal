@@ -45,7 +45,10 @@ public class TreeAsNode implements INode, IExternalValue {
     // over optionals and alternatives.
     return args.get(i);
   }
-
+	@Override
+	public IValue intern() {
+		throw new UnsupportedOperationException();
+	}
   @Override
   public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
     throw new UnsupportedOperationException();

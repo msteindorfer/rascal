@@ -42,6 +42,11 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	private final boolean isStatic;
 	private final String name;
 
+	@Override
+	public IValue intern() {
+		throw new UnsupportedOperationException();
+	}
+	
 	public ConcretePatternDispatchedFunction(IEvaluator<Result<IValue>> eval, String name, Type type, Map<IConstructor, List<AbstractFunction>> alternatives) {
 		super(null, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().voidType(), TypeFactory.getInstance().voidType()), checkVarArgs(alternatives), null, null); // ?? I don't know if this will work..
 		this.type = type;

@@ -77,7 +77,10 @@ IExpirationListener<IValue> {
 	public Transaction(Transaction parent, PrintWriter stderr, boolean commitEnabled) {
 		this(parent, null, stderr, commitEnabled);
 	}
-
+	@Override
+	public IValue intern() {
+		throw new UnsupportedOperationException();
+	}
 	public Transaction(Transaction parent, INameFormatter format, PrintWriter stderr, boolean commitEnabled) {
 		this.parent = parent;
 		this.commitEnabled = commitEnabled;

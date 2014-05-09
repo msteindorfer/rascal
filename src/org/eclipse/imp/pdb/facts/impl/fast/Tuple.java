@@ -32,7 +32,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final IValue[] elements;
 	
 	/*package*/ static ITuple newTuple(Type tupleType, IValue[] elements) {
-		return new Tuple(tupleType, elements);
+		return new Tuple(tupleType, elements).intern();
 	}
 	
 	private Tuple(Type tupleType, IValue[] elements) {
@@ -44,15 +44,20 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	/*package*/ static ITuple newTuple(IValue... elements) {
-		return new Tuple(elements);
+		return new Tuple(elements).intern();
 	}
 	
 	private Tuple(IValue... elements) {
-	    super();
-	    this.tupleType = TypeFactory.getInstance().tupleType(elements);
-		this.elements= elements;
-	    }
-
+		super();
+		this.tupleType = TypeFactory.getInstance().tupleType(elements);
+		this.elements = elements;
+	}
+	
+	@Override
+	public ITuple intern() {
+		return (ITuple) org.rascalmpl.values.ValueFactoryFactory.intern(this);
+	}
+	
 	public Type getType(){
 		return tupleType;
 	}

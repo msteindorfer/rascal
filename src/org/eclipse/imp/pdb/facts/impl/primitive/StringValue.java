@@ -32,13 +32,18 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final String value;
 
 	/*package*/ static IString newString(String value) {
-		return new StringValue(value);
+		return new StringValue(value).intern();
 	}
 
 	private StringValue(String value){
 		super();
 		
 		this.value = value;
+	}
+	
+	@Override
+	public IString intern() {
+		return (IString) org.rascalmpl.values.ValueFactoryFactory.intern(this);
 	}
 
 	@Override

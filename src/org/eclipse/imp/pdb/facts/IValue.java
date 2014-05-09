@@ -81,5 +81,10 @@ public interface IValue  {
      * @return an {@link IAnnotatable} view on this {@link IValue} object 
      */
     public IAnnotatable<? extends IValue> asAnnotatable();
-        
+
+    /**
+     * Maximally share this object. 
+     * @return hash-consed object.
+     */
+    public IValue intern();
 }

@@ -38,9 +38,14 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final ShareableValuesHashSet data;
 	
 	/*package*/ static ISet newSet(Type elementType, ShareableValuesHashSet data) {
-		return new Set(elementType, data);
+		return new Set(elementType, data).intern();
 	}
 		
+	@Override
+	public ISet intern() {
+		return (ISet) org.rascalmpl.values.ValueFactoryFactory.intern(this);
+	}
+	
 	private Set(Type elementType, ShareableValuesHashSet data) {
 		super();
 

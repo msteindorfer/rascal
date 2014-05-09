@@ -42,6 +42,11 @@ public class DynamicGenerator extends AbstractFunction {
 	}
 	
 	@Override
+	public IValue intern() {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
 	public DynamicGenerator cloneInto(Environment env) {
 		HashMap<Type, ICallableValue> newGens = new HashMap<>();
 		for (Type t: generators.keySet()) {

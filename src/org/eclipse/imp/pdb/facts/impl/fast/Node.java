@@ -38,8 +38,13 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final IValue[] children;
 	protected final String[] keyArgNames;
 
+	@Override
+	public INode intern() {
+		return (INode) org.rascalmpl.values.ValueFactoryFactory.intern(this);
+	}
+	
 	/*package*/ static INode newNode(String name, IValue[] children) {
-		return new Node(name, children);
+		return new Node(name, children).intern();
 	}
 	
 	private Node(String name, IValue[] children) {
@@ -51,7 +56,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	/*package*/ static INode newNode(String name, IList children) {
-		return new Node(name, children);
+		return new Node(name, children).intern();
 	}
 	
 	private Node(String name, IList children) {
@@ -66,7 +71,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	/*package*/ static INode newNode(String name, IValue[] children, Map<String, IValue> keyArgValues) {
-		return new Node(name, children, keyArgValues);
+		return new Node(name, children, keyArgValues).intern();
 	}
 	
 	private Node(String name, IValue[] children, Map<String, IValue> keyArgValues) {

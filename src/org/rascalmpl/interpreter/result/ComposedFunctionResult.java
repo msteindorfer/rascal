@@ -42,6 +42,10 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	private final boolean isStatic;
 	private Type type;
 	
+	@Override
+	public IValue intern() {
+		throw new UnsupportedOperationException();
+	}
 	
 	public <T extends Result<IValue> & IExternalValue & ICallableValue, 
 			U extends Result<IValue> & IExternalValue & ICallableValue> 

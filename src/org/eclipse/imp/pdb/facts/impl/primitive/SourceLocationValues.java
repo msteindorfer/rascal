@@ -41,14 +41,14 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		if (length < 0) throw new IllegalArgumentException("length should be positive");
 
 		if (offset < Byte.MAX_VALUE && length < Byte.MAX_VALUE) {
-			return new SourceLocationValues.ByteByte(uri, (byte) offset, (byte) length);
+			return new SourceLocationValues.ByteByte(uri, (byte) offset, (byte) length).intern();
 		}
 
 		if (offset < Character.MAX_VALUE && length < Character.MAX_VALUE) {
-			return new SourceLocationValues.CharChar(uri, (char) offset, (char) length);
+			return new SourceLocationValues.CharChar(uri, (char) offset, (char) length).intern();
 		}
 
-		return new SourceLocationValues.IntInt(uri, offset, length);
+		return new SourceLocationValues.IntInt(uri, offset, length).intern();
 	}
 	
 	/*package*/ static ISourceLocation newSourceLocation(ISourceLocation loc, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
@@ -69,25 +69,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				&& endLine < Byte.MAX_VALUE
 				&& beginCol < Byte.MAX_VALUE
 				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.CharCharByteByteByteByte(uri, (char) offset, (char) length, (byte) beginLine, (byte) endLine, (byte) beginCol, (byte) endCol);
+			return new SourceLocationValues.CharCharByteByteByteByte(uri, (char) offset, (char) length, (byte) beginLine, (byte) endLine, (byte) beginCol, (byte) endCol).intern();
 		} else if (offset < Character.MAX_VALUE
 				&& length < Character.MAX_VALUE
 				&& beginLine < Character.MAX_VALUE
 				&& endLine < Character.MAX_VALUE
 				&& beginCol < Character.MAX_VALUE
 				&& endCol < Character.MAX_VALUE) {
-			return new SourceLocationValues.CharCharCharCharCharChar(uri, (char) offset, (char) length, (char) beginLine, (char) endLine, (char) beginCol, (char) endCol);
+			return new SourceLocationValues.CharCharCharCharCharChar(uri, (char) offset, (char) length, (char) beginLine, (char) endLine, (char) beginCol, (char) endCol).intern();
 		} else if (beginLine < Character.MAX_VALUE
 				&& endLine < Character.MAX_VALUE
 				&& beginCol < Byte.MAX_VALUE
 				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.IntIntCharCharByteByte(uri, offset, length, (char) beginLine, (char) endLine, (byte) beginCol, (byte) endCol);
+			return new SourceLocationValues.IntIntCharCharByteByte(uri, offset, length, (char) beginLine, (char) endLine, (byte) beginCol, (byte) endCol).intern();
 		} else if (beginCol < Byte.MAX_VALUE
 				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.IntIntIntIntByteByte(uri, offset, length, beginLine, endLine, (byte) beginCol, (byte) endCol);
+			return new SourceLocationValues.IntIntIntIntByteByte(uri, offset, length, beginLine, endLine, (byte) beginCol, (byte) endCol).intern();
 		}
 
-		return new SourceLocationValues.IntIntIntIntIntInt(uri, offset, length, beginLine, endLine, beginCol, endCol);
+		return new SourceLocationValues.IntIntIntIntIntInt(uri, offset, length, beginLine, endLine, beginCol, endCol).intern();
 	}	
 	
 
@@ -117,7 +117,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	/*package*/ static ISourceLocation newSourceLocation(String scheme, String authority,
 			String path, String query, String fragment) throws URISyntaxException {
 		IURI u = SourceLocationURIValues.newURI(scheme, authority, path, query, fragment);
-		return new SourceLocationValues.OnlyURI(u);
+		return new SourceLocationValues.OnlyURI(u).intern();
 	}
 
 	
@@ -139,6 +139,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	
 	private abstract static class Incomplete extends AbstractValue implements ISourceLocation {
+		
+		@Override
+		public ISourceLocation intern() {
+			return (ISourceLocation) org.rascalmpl.values.ValueFactoryFactory.intern(this);
+		}
+		
 		protected IURI uri;
 
 		public Incomplete(IURI uri) {

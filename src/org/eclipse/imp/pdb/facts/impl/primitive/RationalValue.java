@@ -28,8 +28,13 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final IInteger num;
 	protected final IInteger denom;
 
+	@Override
+	public IRational intern() {
+		return (IRational) org.rascalmpl.values.ValueFactoryFactory.intern(this);
+	}
+	
 	/*package*/ static IRational newRational(IInteger a, IInteger b) {
-		return new RationalValue(a, b);
+		return new RationalValue(a, b).intern();
 	}
 
 	private RationalValue(IInteger num, IInteger denom) {

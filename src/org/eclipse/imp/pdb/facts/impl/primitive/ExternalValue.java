@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts.impl.primitive;
 
 import org.eclipse.imp.pdb.facts.IExternalValue;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -40,4 +41,10 @@ public abstract class ExternalValue extends AbstractValue implements IExternalVa
 	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitExternal(this);
 	}
+
+	@Override
+	public IValue intern() {
+		throw new UnsupportedOperationException();
+	}
+	
 }

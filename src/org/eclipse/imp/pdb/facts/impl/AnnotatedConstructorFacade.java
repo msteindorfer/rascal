@@ -36,9 +36,14 @@ public class AnnotatedConstructorFacade implements IConstructor {
 		this.content = content;
 		this.annotations = annotations;
 	}
+
+	@Override
+	public IConstructor intern() {
+		return (IConstructor) org.rascalmpl.values.ValueFactoryFactory.intern(this);
+	}
 	
 	public static IConstructor newAnnotatedConstructorFacade(final IConstructor content, final ImmutableMap<String, IValue> annotations) {
-		return new AnnotatedConstructorFacade(content, annotations);
+		return new AnnotatedConstructorFacade(content, annotations).intern();
 	}
 
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {

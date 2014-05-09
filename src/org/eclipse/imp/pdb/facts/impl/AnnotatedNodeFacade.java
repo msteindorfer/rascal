@@ -35,8 +35,13 @@ public class AnnotatedNodeFacade implements INode {
 		this.content = content;
 	}
 	
+	@Override
+	public INode intern() {
+		return (INode) org.rascalmpl.values.ValueFactoryFactory.intern(this);
+	}	
+	
 	public static INode newAnnotatedNodeFacade(final INode content, final ImmutableMap<String, IValue> annotations) {
-		return new AnnotatedNodeFacade(content, annotations);
+		return new AnnotatedNodeFacade(content, annotations).intern();
 	}
 	
 	public Type getType() {

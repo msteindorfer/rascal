@@ -43,7 +43,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected int hashCode = 0;
 
 	/*package*/ static IList newList(Type elementType, ShareableValuesList data) {
-		return new List(elementType, data);
+		return new List(elementType, data).intern();
+	}
+	
+	@Override
+	public IList intern() {
+		return (IList) org.rascalmpl.values.ValueFactoryFactory.intern(this);
 	}
 	
 	private List(Type elementType, ShareableValuesList data){

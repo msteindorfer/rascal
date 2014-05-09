@@ -73,6 +73,11 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			return (subjectArgs.length() + 1) / 2;
 		}
 
+		@Override
+		public IValue intern() {
+			throw new UnsupportedOperationException();
+		}
+		
 		public IValue get(int i) throws IndexOutOfBoundsException {
 			IConstructor arg = (IConstructor) subjectArgs.get(i * 2);
 //			if (TreeAdapter.isList(arg)) {

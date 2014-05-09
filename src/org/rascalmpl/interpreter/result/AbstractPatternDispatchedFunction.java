@@ -48,6 +48,10 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 		this.name = name;
 	}
 	
+	@Override
+	public IValue intern() {
+		throw new UnsupportedOperationException();
+	}
 	
 	@Override
 	public AbstractPatternDispatchedFunction cloneInto(Environment env) {

@@ -51,6 +51,11 @@ public class LazySet implements ISet, IExternalValue {
 	}
 
 	@Override
+	public IValue intern() {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
 	public ISet insert(IValue element) {
 		throw new IllegalOperationException("insert over buffered relation", getType());
 	}

@@ -85,6 +85,11 @@ public class RascalFunction extends NamedFunction {
 	private static final String RESOLVER_TAG = "resolver";
 	private final boolean hasMemoization;
 
+	@Override
+	public IValue intern() {
+		throw new UnsupportedOperationException();
+	}
+	
 	public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
 		this(func, eval,
