@@ -97,42 +97,42 @@
 				http://eclipsesource.com/blogs/2011/07/13/building-osgi-applications-that-use-aspectj-with-tycho-maven-3/
 				http://mojo.codehaus.org/aspectj-maven-plugin/
 			-->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>aspectj-maven-plugin</artifactId>
-				<version>1.5</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.aspectj</groupId>
-						<artifactId>aspectjrt</artifactId>
-						<version>${aspectj.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.aspectj</groupId>
-						<artifactId>aspectjtools</artifactId>
-						<version>${aspectj.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.codehaus.plexus</groupId>
-						<artifactId>plexus-utils</artifactId>
-						<version>3.0.10</version>
-					</dependency>
-				</dependencies>
-				<configuration>
-					<verbose>true</verbose>
-					<complianceLevel>${maven.compiler.target}</complianceLevel>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
-				</configuration>				
-				<executions>
-					<execution>
-						<goals>
-							<goal>compile</goal>       <!-- use this goal to weave all your main classes -->
-							<!-- <goal>test-compile</goal> -->  <!-- use this goal to weave all your test classes -->
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.codehaus.mojo</groupId> -->
+<!-- 				<artifactId>aspectj-maven-plugin</artifactId> -->
+<!-- 				<version>1.5</version> -->
+<!-- 				<dependencies> -->
+<!-- 					<dependency> -->
+<!-- 						<groupId>org.aspectj</groupId> -->
+<!-- 						<artifactId>aspectjrt</artifactId> -->
+<!-- 						<version>${aspectj.version}</version> -->
+<!-- 					</dependency> -->
+<!-- 					<dependency> -->
+<!-- 						<groupId>org.aspectj</groupId> -->
+<!-- 						<artifactId>aspectjtools</artifactId> -->
+<!-- 						<version>${aspectj.version}</version> -->
+<!-- 					</dependency> -->
+<!-- 					<dependency> -->
+<!-- 						<groupId>org.codehaus.plexus</groupId> -->
+<!-- 						<artifactId>plexus-utils</artifactId> -->
+<!-- 						<version>3.0.10</version> -->
+<!-- 					</dependency> -->
+<!-- 				</dependencies> -->
+<!-- 				<configuration> -->
+<!-- 					<verbose>true</verbose> -->
+<!-- 					<complianceLevel>${maven.compiler.target}</complianceLevel> -->
+<!-- 					<source>${maven.compiler.source}</source> -->
+<!-- 					<target>${maven.compiler.target}</target> -->
+<!-- 				</configuration>				 -->
+<!-- 				<executions> -->
+<!-- 					<execution> -->
+<!-- 						<goals> -->
+<!-- 							<goal>compile</goal>       use this goal to weave all your main classes -->
+<!-- 							<goal>test-compile</goal>  use this goal to weave all your test classes -->
+<!-- 						</goals> -->
+<!-- 					</execution> -->
+<!-- 				</executions> -->
+<!-- 			</plugin> -->
 		</plugins>
 	</build>
 
