@@ -91,6 +91,24 @@
         			<reuseForks>false</reuseForks>					
 				</configuration>
 			</plugin>
+		
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>compile</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<compilerArgument>-err:-forbidden</compilerArgument>				
+				</configuration>
+			</plugin>
 					
 			<!--
 				AspectJ Maven Plugin

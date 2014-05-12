@@ -21,12 +21,13 @@ import java.util.WeakHashMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
+import org.eclipse.imp.pdb.facts.tracking.AnotherWeakHashMap;
 import org.eclipse.imp.pdb.facts.tracking.WeakFixedHashCodeHashMap;
 
 public class ValueFactoryFactory{
 
-	final static boolean isSharingEnabled = System.getProperties().containsKey("sharingEnabled");
-
+	public final static boolean isSharingEnabled = System.getProperties().containsKey("sharingEnabled");
+	
 	public static IValue intern(final IValue prototype) {
 		if (isSharingEnabled) {
 			final WeakReference<IValue> poolObjectReferene = getFromObjectPool(prototype);
@@ -52,32 +53,18 @@ public class ValueFactoryFactory{
 		}
 	}
 	
-
+	final static Map<IValue, WeakReference<IValue>> objectPool = new AnotherWeakHashMap<>();
+//	final static WeakFixedHashCodeHashMap<IValue, WeakReference<IValue>> objectPool = new WeakFixedHashCodeHashMap<>();
 	
-//	final static Map<IValue, WeakReference<IValue>> objectPool = new WeakHashMap<>();
-//
-//	static WeakReference<IValue> getFromObjectPool(IValue prototype) {
-//		return objectPool.get(prototype);
-//	}
-//	
-//	static void putIntoObjectPool(IValue prototype) {
-//		objectPool.put(prototype, new WeakReference<>(prototype));
-//	}
-	
-	
-		
-	final static WeakFixedHashCodeHashMap<IValue, WeakReference<IValue>> objectPool = new WeakFixedHashCodeHashMap<>();
-
 	static WeakReference<IValue> getFromObjectPool(IValue prototype) {
-		return objectPool.getValue(prototype);
+		return objectPool.get(prototype);
 	}
 	
 	static void putIntoObjectPool(IValue prototype) {
 		objectPool.put(prototype, new WeakReference<>(prototype));
 	}
 
-	
-	
+		
 	public static IValueFactory getValueFactory(){
 		return ValueFactory.getInstance();
 	}
