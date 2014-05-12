@@ -29,28 +29,28 @@ public class ValueFactoryFactory{
 	public final static boolean isSharingEnabled = System.getProperties().containsKey("sharingEnabled");
 	
 	public static IValue intern(final IValue prototype) {
-		if (isSharingEnabled) {
-			final WeakReference<IValue> poolObjectReferene = getFromObjectPool(prototype);
-
-			if (poolObjectReferene == null) {
-//				System.out.println("MISS");
-				putIntoObjectPool(prototype);
-				return prototype;
-			} else {
-				final IValue weaklyReferencedObject = poolObjectReferene.get();
-
-				if (weaklyReferencedObject != null) {
-//					System.out.println("HIT");
-					return weaklyReferencedObject;
-				} else {
-//					System.out.println("RACE");
-					putIntoObjectPool(prototype); // TODO: follow-up
-					return prototype;
-				}
-			}
-		} else {
+//		if (isSharingEnabled) {
+//			final WeakReference<IValue> poolObjectReferene = getFromObjectPool(prototype);
+//
+//			if (poolObjectReferene == null) {
+////				System.out.println("MISS");
+//				putIntoObjectPool(prototype);
+//				return prototype;
+//			} else {
+//				final IValue weaklyReferencedObject = poolObjectReferene.get();
+//
+//				if (weaklyReferencedObject != null) {
+////					System.out.println("HIT");
+//					return weaklyReferencedObject;
+//				} else {
+////					System.out.println("RACE");
+//					putIntoObjectPool(prototype); // TODO: follow-up
+//					return prototype;
+//				}
+//			}
+//		} else {
 			return prototype;
-		}
+//		}
 	}
 	
 	final static Map<IValue, WeakReference<IValue>> objectPool = new AnotherWeakHashMap<>();

@@ -168,6 +168,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public boolean equals(Object o){
+//		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabled) {			
+//			return o == this;
+//		}
+		
 		if(o == this) return true;
 		if(o == null) return false;
 		

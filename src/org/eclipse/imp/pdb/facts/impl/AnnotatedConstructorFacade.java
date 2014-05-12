@@ -144,7 +144,11 @@ public class AnnotatedConstructorFacade implements IConstructor {
 		return content.declaresAnnotation(store, label);
 	}
 
-	public boolean equals(Object o) {
+	public boolean equals(Object o) {	
+//		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabled) {			
+//			return o == this;
+//		}
+		
 		if(o == this) return true;
 		if(o == null) return false;
 		

@@ -114,6 +114,10 @@ public class AnnotatedNodeFacade implements INode {
 
 	@Override
 	public boolean equals(Object o) {
+//		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabled) {			
+//			return o == this;
+//		}
+		
 		if(o == this) return true;
 		if(o == null) return false;
 		
