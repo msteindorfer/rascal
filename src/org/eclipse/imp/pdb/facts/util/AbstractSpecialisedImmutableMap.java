@@ -119,35 +119,6 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 
 		return false;
 	}
-	
-	@Override
-	public boolean equiv(Object other) {
-		if (other == this) return true;
-		if (other == null) return false;
-
-		if (other instanceof Map) {
-			try {
-				@SuppressWarnings("unchecked")
-				Map<K, V> that = (Map<K, V>) other;
-
-				if (this.size() == that.size()) {
-					for (Entry<K, V> e : this.entrySet()) {
-						if (!that.containsKey(e.getKey()))
-							return false;
-						Object a = e.getValue();
-						Object b = that.get(e.getKey());
-						if (!(a != null && a == b))
-							return false;
-					}
-					return true;
-				}
-			} catch (ClassCastException unused) {
-				return false;
-			}
-		}
-
-		return false;
-	}	
 }
 
 class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
@@ -1029,36 +1000,7 @@ class CopyOnWriteImmutableMap<K, V> implements ImmutableMap<K, V> {
 	public boolean equals(Object other) {
 		return content.equals(other);
 	}
-	
-	@Override
-	public boolean equiv(Object other) {
-		if (other == this) return true;
-		if (other == null) return false;
 
-		if (other instanceof Map) {
-			try {
-				@SuppressWarnings("unchecked")
-				Map<K, V> that = (Map<K, V>) other;
-
-				if (content.size() == that.size()) {
-					for (Entry<K, V> e : content.entrySet()) {
-						if (!that.containsKey(e.getKey()))
-							return false;
-						Object a = e.getValue();
-						Object b = that.get(e.getKey());
-						if (!(a != null && a == b))
-							return false;
-					}
-					return true;
-				}
-			} catch (ClassCastException unused) {
-				return false;
-			}
-		}
-
-		return false;
-	}	
-	
 	@Override
 	public String toString() {
 		return content.toString();

@@ -48,11 +48,6 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	private final static TypeFactory TF = TypeFactory.getInstance();
 
 	@Override
-	public boolean equiv(Object o) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
 	public IValue intern() {
 		throw new UnsupportedOperationException();
 	}

@@ -43,11 +43,6 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	private Type type;
 	
 	@Override
-	public boolean equiv(Object o) {
-		throw new UnsupportedOperationException();
-	}	
-	
-	@Override
 	public IValue intern() {
 		throw new UnsupportedOperationException();
 	}

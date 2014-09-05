@@ -43,11 +43,6 @@ public abstract class ExternalValue extends AbstractValue implements IExternalVa
 	}
 
 	@Override
-	public boolean equiv(Object o) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
 	public IValue intern() {
 		throw new UnsupportedOperationException();
 	}

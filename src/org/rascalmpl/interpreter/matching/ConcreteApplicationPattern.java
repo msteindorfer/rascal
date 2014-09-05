@@ -72,11 +72,6 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		public int arity() {
 			return (subjectArgs.length() + 1) / 2;
 		}
-		
-		@Override
-		public boolean equiv(Object o) {
-			throw new UnsupportedOperationException();
-		}		
 
 		@Override
 		public IValue intern() {

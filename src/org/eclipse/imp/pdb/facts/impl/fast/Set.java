@@ -234,22 +234,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		
 		return false;
 	}
-
-	public boolean equiv(Object o){
-		if(o == this) return true;
-		if(o == null) return false;
-		
-		if(o.getClass() == getClass()){
-			Set otherSet = (Set) o;
-			
-			if (getType() != otherSet.getType()) {
-			  return false;
-			}
-			return data.equiv(otherSet.data);
-		}
-		
-		return false;
-	}
 	
 	@Override
 	public boolean isEqual(IValue value){

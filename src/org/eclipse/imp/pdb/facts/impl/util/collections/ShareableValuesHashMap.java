@@ -388,20 +388,6 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		
 		return true;
 	}
-
-	private IValue getTruelyEquiv(IValue key){
-		int hash = key.hashCode();
-		int position = hash & hashMask;
-		
-		Entry<IValue, IValue> entry = data[position];
-		while(entry != null){
-			if(hash == entry.hash && key == entry.key) return entry.value;
-			
-			entry = entry.next;
-		}
-		
-		return null;
-	}
 	
 	private IValue getTruelyEqual(IValue key){
 		int hash = key.hashCode();
@@ -441,31 +427,6 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		
 		return false;
 	}
-
-	public boolean equiv(Object o){
-		if(o == null) return false;
-		
-		if(o.getClass() == getClass()){
-			ShareableValuesHashMap other = (ShareableValuesHashMap) o;
-			
-			if(other.currentHashCode != currentHashCode) return false;
-			if(other.size() != size()) return false;
-		
-			if(isEmpty()) return true; // No need to check if the maps are empty.
-			
-			Iterator<Map.Entry<IValue, IValue>> otherIterator = other.entryIterator();
-			while(otherIterator.hasNext()){
-				Map.Entry<IValue, IValue> entry = otherIterator.next();
-				IValue otherValue = entry.getValue();
-				IValue thisValue = getTruelyEquiv(entry.getKey());
-				
-				if(otherValue != thisValue && (thisValue == null || thisValue != otherValue)) return false;
-			}
-			return true;
-		}
-		
-		return false;
-	}	
 	
 	private static class Entry<K, V> implements Map.Entry<K, V>{
 		public final int hash;

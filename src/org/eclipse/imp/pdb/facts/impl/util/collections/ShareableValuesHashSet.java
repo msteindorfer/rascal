@@ -358,20 +358,6 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		
 		return false;
 	}
-
-	private boolean containsTruelyEquiv(IValue value){
-		int hash = value.hashCode();
-		int position = hash & hashMask;
-		
-		Entry<IValue> entry = data[position];
-		while(entry != null){
-			if(hash == entry.hash && value == entry.value) return true;
-			
-			entry = entry.next;
-		}
-		
-		return false;
-	}	
 	
 	public boolean equals(Object o){
 		if(o == null) return false;
@@ -393,28 +379,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		
 		return false;
 	}
-
-	public boolean equiv(Object o){
-		if(o == null) return false;
-		
-		if(o.getClass() == getClass()){
-			ShareableValuesHashSet other = (ShareableValuesHashSet) o;
-			
-			if(other.currentHashCode != currentHashCode) return false;
-			if(other.size() != size()) return false;
-			
-			if(isEmpty()) return true; // No need to check if the sets are empty.
-			
-			Iterator<IValue> otherIterator = other.iterator();
-			while(otherIterator.hasNext()){
-				if(!containsTruelyEquiv(otherIterator.next())) return false;
-			}
-			return true;
-		}
-		
-		return false;
-	}
-		
+	
 	private static class Entry<V>{
 		public final int hash;
 		public final V value;

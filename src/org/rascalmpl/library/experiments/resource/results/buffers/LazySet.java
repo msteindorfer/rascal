@@ -51,11 +51,6 @@ public class LazySet implements ISet, IExternalValue {
 	}
 
 	@Override
-	public boolean equiv(Object o) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
 	public IValue intern() {
 		throw new UnsupportedOperationException();
 	}

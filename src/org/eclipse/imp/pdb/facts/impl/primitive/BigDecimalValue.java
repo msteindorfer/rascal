@@ -323,17 +323,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return false;
 	}
 	
-	public boolean equiv(Object o){
-		if(o == null) return false;
-		
-		if(o.getClass() == getClass()){
-			BigDecimalValue otherDouble = (BigDecimalValue) o;
-			return (value.equals(otherDouble.value));
-		}
-		
-		return false;
-	}
-	
 	@Override
 	public boolean isEqual(IValue o){
 		if (FORWARD_ISEQUAL_TO_EQUALS) {
