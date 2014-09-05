@@ -348,6 +348,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			return false;
 		}
+
+		@Override
+		public boolean equiv(Object o){
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				IntIntIntIntIntInt otherSourceLocation = (IntIntIntIntIntInt) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (beginLine == otherSourceLocation.beginLine)
+						&& (endLine == otherSourceLocation.endLine)
+						&& (beginCol == otherSourceLocation.beginCol)
+						&& (endCol == otherSourceLocation.endCol)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}
 		
 		@Override
 		public boolean isEqual(IValue o){
@@ -459,6 +478,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
+		public boolean equiv(Object o){
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				CharCharByteByteByteByte otherSourceLocation = (CharCharByteByteByteByte) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (beginLine == otherSourceLocation.beginLine)
+						&& (endLine == otherSourceLocation.endLine)
+						&& (beginCol == otherSourceLocation.beginCol)
+						&& (endCol == otherSourceLocation.endCol)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}		
+		
+		@Override
 		public boolean isEqual(IValue o){
 			if (FORWARD_ISEQUAL_TO_EQUALS) {
 				return equals(o);
@@ -568,6 +606,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
+		public boolean equiv(Object o){
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				CharCharCharCharCharChar otherSourceLocation = (CharCharCharCharCharChar) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (beginLine == otherSourceLocation.beginLine)
+						&& (endLine == otherSourceLocation.endLine)
+						&& (beginCol == otherSourceLocation.beginCol)
+						&& (endCol == otherSourceLocation.endCol)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}
+			
+		@Override
 		public boolean isEqual(IValue o){
 			if (FORWARD_ISEQUAL_TO_EQUALS) {
 				return equals(o);
@@ -614,6 +671,19 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			return false;
 		}
+		
+		@Override
+		public boolean equiv(Object o){
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				OnlyURI otherSourceLocation = (OnlyURI) o;
+				return uri.equals(otherSourceLocation.uri);
+			}
+			
+			return false;
+		}		
 		
 		@Override
 		public boolean isEqual(IValue o){
@@ -714,6 +784,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return false;
 		}
 		
+		@Override
+		public boolean equiv(Object o){
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				IntIntIntIntByteByte otherSourceLocation = (IntIntIntIntByteByte) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (beginLine == otherSourceLocation.beginLine)
+						&& (endLine == otherSourceLocation.endLine)
+						&& (beginCol == otherSourceLocation.beginCol)
+						&& (endCol == otherSourceLocation.endCol)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}
+				
 		@Override
 		public boolean isEqual(IValue o){
 			if (FORWARD_ISEQUAL_TO_EQUALS) {
@@ -820,6 +909,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
+		public boolean equiv(Object o){
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				IntIntCharCharByteByte otherSourceLocation = (IntIntCharCharByteByte) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (beginLine == otherSourceLocation.beginLine)
+						&& (endLine == otherSourceLocation.endLine)
+						&& (beginCol == otherSourceLocation.beginCol)
+						&& (endCol == otherSourceLocation.endCol)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}		
+		
+		@Override
 		public boolean isEqual(IValue o){
 			if (FORWARD_ISEQUAL_TO_EQUALS) {
 				return equals(o);
@@ -892,6 +1000,21 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			return false;
 		}
+
+		@Override
+		public boolean equiv(Object o){
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				ByteByte otherSourceLocation = (ByteByte) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}		
 		
 		@Override
 		public boolean isEqual(IValue o){
@@ -962,7 +1085,22 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			return false;
 		}
-		
+
+		@Override
+		public boolean equiv(Object o){
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				CharChar otherSourceLocation = (CharChar) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}
+			
 		@Override
 		public boolean isEqual(IValue o){
 			if (FORWARD_ISEQUAL_TO_EQUALS) {
@@ -1037,6 +1175,21 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			return false;
 		}
+		
+		@Override
+		public boolean equiv(Object o){
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				IntInt otherSourceLocation = (IntInt) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}		
 		
 		@Override
 		public boolean isEqual(IValue o){

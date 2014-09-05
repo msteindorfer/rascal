@@ -34,6 +34,28 @@ public class ShareableValuesList extends ShareableList<IValue>{
 		super(shareableValuesList, offset, length);
 	}
 	
+	public boolean equiv(Object o){
+		if(o == this) return true;
+		if(o == null) return false;
+		
+		if(o.getClass() == getClass()){
+			ShareableList<?> other = (ShareableList<?>) o;
+			
+			if(other.size() == size()){
+				if(isEmpty()) return true; // No need to check if the lists are empty.
+				
+				Iterator thisIterator = iterator();
+				Iterator otherIterator = other.iterator();
+				while(thisIterator.hasNext()){
+					if(thisIterator.next() != otherIterator.next()) return false;
+				}
+				return true;
+			}
+		}
+		
+		return false;
+	}	
+	
 	public boolean isEqual(ShareableValuesList otherShareableValuesList){
 		if(otherShareableValuesList == null) return false;
 		if(otherShareableValuesList.size() != size()) return false;

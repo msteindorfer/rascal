@@ -208,6 +208,48 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return false;
 	}
 	
+	@Override
+	public boolean equiv(Object o){
+//		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabled) {			
+//			return o == this;
+//		}
+		
+		if(o == this) return true;
+		if(o == null) return false;
+		
+		if(o.getClass() == getClass()){
+			Node other = (Node) o;
+			
+			if(name != other.name) return false; // Yes '==' works here, since it has been interned.
+			
+			IValue[] otherChildren = other.children;
+			int nrOfChildren = children.length;
+			if(otherChildren.length == nrOfChildren){
+				int nrOfPosChildren = positionalArity();
+				if(other.positionalArity() != nrOfPosChildren){
+					return false;
+				}
+				for(int i = nrOfPosChildren - 1; i >= 0; i--){
+					if(otherChildren[i] != children[i]) return false;
+				}
+				if(nrOfPosChildren < nrOfChildren){
+					if(keyArgNames == null)
+						return false;
+					for(int i = 0; i < keyArgNames.length; i++){
+						String kw = keyArgNames[i];
+						int k = other.getKeywordIndex(kw);
+						if(k < 0 || children[i] != otherChildren[k]){
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+		}
+		
+		return false;
+	}	
+	
 	/**
 	 * TODO: Check if it is easily possible to cast annotatable's content to
 	 * List and to reuse old isEqual.

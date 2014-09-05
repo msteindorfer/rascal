@@ -78,6 +78,10 @@ IExpirationListener<IValue> {
 		this(parent, null, stderr, commitEnabled);
 	}
 	@Override
+	public boolean equiv(Object o) {
+		throw new UnsupportedOperationException();
+	}
+	@Override
 	public IValue intern() {
 		throw new UnsupportedOperationException();
 	}

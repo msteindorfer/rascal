@@ -341,6 +341,18 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		
 		return false;
 	}
+
+	public boolean equiv(Object o){
+		if(o == null) return false;
+		else if(o == this) return true;
+		
+		if(o.getClass() == getClass()){
+			BigIntegerValue otherInteger = (BigIntegerValue) o;
+			return value.equals(otherInteger.value);
+		}
+		
+		return false;
+	}	
 	
 	@Override
 	public boolean isEqual(IValue o){

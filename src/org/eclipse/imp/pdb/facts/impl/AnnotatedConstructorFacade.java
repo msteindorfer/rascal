@@ -161,7 +161,26 @@ public class AnnotatedConstructorFacade implements IConstructor {
 		
 		return false;
 	}
-
+	
+	@Override
+	public boolean equiv(Object o) {
+//		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabled) {			
+//			return o == this;
+//		}
+		
+		if(o == this) return true;
+		if(o == null) return false;
+		
+		if(o.getClass() == getClass()){
+			AnnotatedConstructorFacade other = (AnnotatedConstructorFacade) o;
+		
+			return (content == other.content) && 							
+					annotations.equiv(other.annotations);
+		}
+		
+		return false;
+	}
+	
 	@Override
 	public boolean isEqual(IValue other) {
 		if (FORWARD_ISEQUAL_TO_EQUALS) {

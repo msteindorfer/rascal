@@ -21,7 +21,7 @@ import java.util.WeakHashMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
-import org.eclipse.imp.pdb.facts.tracking.AnotherWeakHashMap;
+//import org.eclipse.imp.pdb.facts.tracking.AnotherWeakHashMap;
 import org.eclipse.imp.pdb.facts.tracking.WeakFixedHashCodeHashMap;
 
 public class ValueFactoryFactory{
@@ -53,7 +53,8 @@ public class ValueFactoryFactory{
 //		}
 	}
 	
-	final static Map<IValue, WeakReference<IValue>> objectPool = new AnotherWeakHashMap<>();
+	final static Map<IValue, WeakReference<IValue>> objectPool = new WeakHashMap<>();
+//	final static Map<IValue, WeakReference<IValue>> objectPool = new AnotherWeakHashMap<>();
 //	final static WeakFixedHashCodeHashMap<IValue, WeakReference<IValue>> objectPool = new WeakFixedHashCodeHashMap<>();
 	
 	static WeakReference<IValue> getFromObjectPool(IValue prototype) {

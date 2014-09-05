@@ -127,6 +127,10 @@ public abstract class BoolValue extends AbstractValue implements IBool {
 		return this == o;
 	}
 
+	public boolean equiv(Object o) {
+		return this == o;
+	}
+	
 	@Override
 	public Type getType() {
 		return BOOL_TYPE;

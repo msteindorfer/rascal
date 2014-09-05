@@ -43,6 +43,11 @@ public abstract class ResourceResult extends Result<IValue> implements IExternal
 	}
 
 	@Override
+	public boolean equiv(Object o) {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
 	public boolean isEqual(IValue other) {
 		if (other instanceof ResourceResult) {
 			return fullURI.equals(((ResourceResult) other).fullURI);

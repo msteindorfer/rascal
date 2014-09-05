@@ -19,4 +19,6 @@ public interface ImmutableMap<K, V> extends Map<K, V> {
 	ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map);
 	
 	ImmutableMap<K, V> __remove(K key);
+	
+    boolean equiv(Object o);
 }
