@@ -20,7 +20,6 @@ import java.util.WeakHashMap;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.tracking.AnotherWeakHashMap;
 import org.eclipse.imp.pdb.facts.tracking.WeakFixedHashCodeHashMap;
 
@@ -66,6 +65,6 @@ public class ValueFactoryFactory{
 
 		
 	public static IValueFactory getValueFactory(){
-		return ValueFactory.getInstance();
+		return org.eclipse.imp.pdb.facts.impl.fast.ValueFactory.getInstance();
 	}
 }

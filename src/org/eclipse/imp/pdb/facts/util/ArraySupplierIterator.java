@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013-2014 CWI
+ * Copyright (c) 2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,18 +11,18 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class ArrayIterator<E> implements Iterator<E> {
+public class ArraySupplierIterator<E> implements SupplierIterator<E, E> {
 
-	final E[] values;
+	final Object[] values;
 	final int end;
 	int currentIndex;
-	
-	public ArrayIterator(final E[] values, int start, int end) {
+	E currentElement;
+
+	public ArraySupplierIterator(final Object[] values, int start, int end) {
 		assert start <= end && end <= values.length;
-		
+
 		this.values = values;
 		this.end = end;
 		this.currentIndex = start;
@@ -33,10 +33,19 @@ public class ArrayIterator<E> implements Iterator<E> {
 		return currentIndex < end;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public E next() {
-		if (!hasNext()) throw new NoSuchElementException();
-		return values[currentIndex++];
+		if (!hasNext())
+			throw new NoSuchElementException();
+
+		currentElement = (E) values[currentIndex++];
+		return currentElement;
+	}
+
+	@Override
+	public E get() {
+		return currentElement;
 	}
 
 	@Override
@@ -44,12 +53,12 @@ public class ArrayIterator<E> implements Iterator<E> {
 		throw new UnsupportedOperationException();
 	}
 
-	public static <E> Iterator<E> of(E[] array) {
-		return new ArrayIterator<>(array, 0, array.length);
+	public static <E> SupplierIterator<E, E> of(Object[] array) {
+		return new ArraySupplierIterator<>(array, 0, array.length);
 	}
-	
-	public static <E> Iterator<E> of(E[] array, int start, int length) {
-		return new ArrayIterator<>(array, start, start + length);
+
+	public static <E> SupplierIterator<E, E> of(Object[] array, int start, int length) {
+		return new ArraySupplierIterator<>(array, start, start + length);
 	}
 
 }
