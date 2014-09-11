@@ -279,9 +279,18 @@ public aspect ObjectLifetimeTracking {
 		// NOTE: Cached hashes are not yet calculated here, thus it would fail.
 //		byte[] h1 = hashWriter.calculateHash((IValue) v1);
 		
+		String valueString = v1.toString();
+		
+		final String possiblyShortenedString;
+		if (valueString.length() > 64) {
+			possiblyShortenedString = valueString.substring(0, 64).concat("...");
+		} else {
+			possiblyShortenedString = valueString;
+		}
+		
 		logger.finest(String.format("OBJ_[CLASS CMP] %s", v1.getClass().getCanonicalName()));
 //		logger.finest(String.format("OBJ_[HASH  CMP] %s", toHexString(h1));
-		logger.finest(String.format("OBJ_[VALUE CMP] %s", v1));
+//		logger.finest(String.format("OBJ_[VALUE CMP] %s", possiblyShortenedString));
 		logger.finest(String.format("OBJ_[HASHC CMP] %d", v1.hashCode()));
 		logger.finest(String.format("OBJ_[ ID   CMP] %d", System.identityHashCode(v1)));	
 		logger.finest(String.format("OBJ_[TAGS  CMP] %d", BCITracker.getTag(v1)));
@@ -333,7 +342,10 @@ public aspect ObjectLifetimeTracking {
 							// hashes full composite object
 							digest = HashWriter.toHashByteArray((IValue) newObject);
 							break;
-						}						
+							
+						default:
+							throw new RuntimeException();
+						}
 					}
 //					tagInfoBldr.setDigest(toHexString(digest));
 					allocationRecBldr.setDigest(toHexString(digest));
@@ -656,7 +668,7 @@ public aspect ObjectLifetimeTracking {
 				&& !execution(boolean org.rascalmpl.interpreter.result.ICallableValue+.equals(..))
 			);
 		
-		pointcut topEqualsOutsideAdvice() : if(isRedundancyProfilingEnabled) && !cflow(adviceexecution()) && equalsOutsideAdvice() && !cflowbelow(equalsOutsideAdvice());
+		pointcut topEqualsOutsideAdvice() : if(isRedundancyProfilingEnabled && !isSharingEnabled) && !cflow(adviceexecution()) && equalsOutsideAdvice() && !cflowbelow(equalsOutsideAdvice());
 		
 		pointcut lowerEqualsCallOutsideAdvice() : cflowbelow(equalsOutsideAdvice()) && ( 
 				execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) 
@@ -676,7 +688,7 @@ public aspect ObjectLifetimeTracking {
 				&& !execution(boolean org.rascalmpl.interpreter.result.ICallableValue+.equals(..))
 			);	
 
-		pointcut topIsEqualOutsideAdvice() : if(isRedundancyProfilingEnabled) && !cflow(adviceexecution()) && isEqualOutsideAdvice() && !cflowbelow(isEqualOutsideAdvice());
+		pointcut topIsEqualOutsideAdvice() : if(isRedundancyProfilingEnabled && !isSharingEnabled) && !cflow(adviceexecution()) && isEqualOutsideAdvice() && !cflowbelow(isEqualOutsideAdvice());
 
 		pointcut lowerIsEqualCallOutsideAdvice() : cflowbelow(isEqualOutsideAdvice()) && ( 
  				execution(boolean org.eclipse.imp.pdb.facts.IValue+.isEqual(..)) 
@@ -870,15 +882,26 @@ public aspect ObjectLifetimeTracking {
 		}
 		
 		void printInfo(JoinPoint thisJP, JoinPoint.StaticPart enclosingJPSP, Object v1, Object v2) {
-			byte[] h1 = hashWriter.calculateHash((IValue) v1);
-			byte[] h2 = hashWriter.calculateHash((IValue) v2);	
+			String name1 = v1.getClass().getCanonicalName();
+			if (name1 == null) {
+				name1 = v1.getClass().getName();
+			}
+			String name2 = v2.getClass().getCanonicalName();
+			if (name2 == null) {
+				name2 = v2.getClass().getName();
+			}		
 			
-			System.out.println(String.format(outerEqualityID + "[CLASS CMP] %s equals %s == %b", v1.getClass().getCanonicalName(), v2.getClass().getCanonicalName(), v1.getClass().getCanonicalName().equals(v2.getClass().getCanonicalName())));
-			System.out.println(String.format(outerEqualityID + "[HASH  CMP] %s equals %s == %b", toHexString(h1), toHexString(h2), toHexString(h1).equals(toHexString(h2))));
+			System.out.println(String.format(outerEqualityID + "[CLASS CMP] %s equals %s == %b", name1, name2, name1.equals(name2)));
 			System.out.println(String.format(outerEqualityID + "[VALUE CMP] %s equals %s == %s", v1, v2, "???"));
-			System.out.println(String.format(outerEqualityID + "[HASHC CMP] %d equals %d == %b", v1.hashCode(), v2.hashCode(), v1.hashCode() == v2.hashCode()));
 			System.out.println(String.format(outerEqualityID + "[ ID   CMP] %d equals %d == %b", System.identityHashCode(v1), System.identityHashCode(v2), System.identityHashCode(v1) == System.identityHashCode(v2)));	
-//			
+			
+			System.out.println(String.format(outerEqualityID + "[HASHC CMP] %d equals %d == %b", v1.hashCode(), v2.hashCode(), v1.hashCode() == v2.hashCode()));
+
+			byte[] h1 = hashWriter.calculateHash((IValue) v1); System.out.println("h1 calculated."); 
+			byte[] h2 = hashWriter.calculateHash((IValue) v2); System.out.println("h2 calculated.");
+			
+			System.out.println(String.format(outerEqualityID + "[HASH  CMP] %s equals %s == %b", toHexString(h1), toHexString(h2), toHexString(h1).equals(toHexString(h2))));
+			
 //			System.out.println(String.format(outerEqualityID + "[FROM...TO] %s -> %s", 
 //					enclosingJPSP.getSignature().getDeclaringType().getSimpleName(),
 //					v1.getClass().getSimpleName()));		
