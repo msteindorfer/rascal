@@ -9,7 +9,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>rascal</artifactId>
+	<artifactId>rascal-orpheus</artifactId>
 	<version>0.6.2.qualifier</version>
 	<packaging>eclipse-plugin</packaging>
 
@@ -17,14 +17,14 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<maven.compiler.source>1.7</maven.compiler.source>
-		<aspectj.version>1.7.3</aspectj.version>
+		<aspectj.version>1.8.5</aspectj.version>
 	</properties>
 
 	<repositories>
 		<repository>
 			<id>aspectj</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/tools/ajdt/42/dev/update</url>
+			<url>http://download.eclipse.org/tools/ajdt/44/dev/update</url>
 		</repository>
 	</repositories>
 
@@ -106,7 +106,8 @@
 					</execution>
 				</executions>
 				<configuration>
-					<compilerArgument>-err:-forbidden</compilerArgument>				
+					<compilerArgument>-XDignore.symbol.file=true</compilerArgument>
+					<compilerArgument>-err:-forbidden</compilerArgument>
 				</configuration>
 			</plugin>
 					

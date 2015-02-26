@@ -62,7 +62,6 @@ public class ValueFactoryFactory{
 	static void putIntoObjectPool(IValue prototype) {
 		objectPool.put(prototype, new WeakReference<>(prototype));
 	}
-
 		
 	public static IValueFactory getValueFactory(){
 		return org.eclipse.imp.pdb.facts.impl.fast.ValueFactory.getInstance();

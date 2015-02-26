@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1998, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -24,17 +24,23 @@
  */
 
 package org.eclipse.imp.pdb.facts.tracking;
+
 import java.lang.ref.WeakReference;
 import java.lang.ref.ReferenceQueue;
 import java.util.*;
-
-import org.eclipse.imp.pdb.facts.IValue;
+import java.util.AbstractMap;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 
 /**
  * Hash table based implementation of the <tt>Map</tt> interface, with
  * <em>weak keys</em>.
- * An entry in a <tt>WeakHashMap</tt> will automatically be removed when
+ * An entry in a <tt>AnotherWeakHashMap</tt> will automatically be removed when
  * its key is no longer in ordinary use.  More precisely, the presence of a
  * mapping for a given key will not prevent the key from being discarded by the
  * garbage collector, that is, made finalizable, finalized, and then reclaimed.
@@ -48,7 +54,7 @@ import org.eclipse.imp.pdb.facts.IValue;
  * and <em>load factor</em>.
  *
  * <p> Like most collection classes, this class is not synchronized.
- * A synchronized <tt>WeakHashMap</tt> may be constructed using the
+ * A synchronized <tt>AnotherWeakHashMap</tt> may be constructed using the
  * {@link Collections#synchronizedMap Collections.synchronizedMap}
  * method.
  *
@@ -56,20 +62,20 @@ import org.eclipse.imp.pdb.facts.IValue;
  * <tt>equals</tt> methods test for object identity using the
  * <tt>==</tt> operator.  Once such a key is discarded it can never be
  * recreated, so it is impossible to do a lookup of that key in a
- * <tt>WeakHashMap</tt> at some later time and be surprised that its entry
+ * <tt>AnotherWeakHashMap</tt> at some later time and be surprised that its entry
  * has been removed.  This class will work perfectly well with key objects
  * whose <tt>equals</tt> methods are not based upon object identity, such
  * as <tt>String</tt> instances.  With such recreatable key objects,
- * however, the automatic removal of <tt>WeakHashMap</tt> entries whose
+ * however, the automatic removal of <tt>AnotherWeakHashMap</tt> entries whose
  * keys have been discarded may prove to be confusing.
  *
- * <p> The behavior of the <tt>WeakHashMap</tt> class depends in part upon
+ * <p> The behavior of the <tt>AnotherWeakHashMap</tt> class depends in part upon
  * the actions of the garbage collector, so several familiar (though not
  * required) <tt>Map</tt> invariants do not hold for this class.  Because
  * the garbage collector may discard keys at any time, a
- * <tt>WeakHashMap</tt> may behave as though an unknown thread is silently
+ * <tt>AnotherWeakHashMap</tt> may behave as though an unknown thread is silently
  * removing entries.  In particular, even if you synchronize on a
- * <tt>WeakHashMap</tt> instance and invoke none of its mutator methods, it
+ * <tt>AnotherWeakHashMap</tt> instance and invoke none of its mutator methods, it
  * is possible for the <tt>size</tt> method to return smaller values over
  * time, for the <tt>isEmpty</tt> method to return <tt>false</tt> and
  * then <tt>true</tt>, for the <tt>containsKey</tt> method to return
@@ -81,17 +87,17 @@ import org.eclipse.imp.pdb.facts.IValue;
  * for successive examinations of the key set, the value collection, and
  * the entry set to yield successively smaller numbers of elements.
  *
- * <p> Each key object in a <tt>WeakHashMap</tt> is stored indirectly as
+ * <p> Each key object in a <tt>AnotherWeakHashMap</tt> is stored indirectly as
  * the referent of a weak reference.  Therefore a key will automatically be
  * removed only after the weak references to it, both inside and outside of the
  * map, have been cleared by the garbage collector.
  *
  * <p> <strong>Implementation note:</strong> The value objects in a
- * <tt>WeakHashMap</tt> are held by ordinary strong references.  Thus care
+ * <tt>AnotherWeakHashMap</tt> are held by ordinary strong references.  Thus care
  * should be taken to ensure that value objects do not strongly refer to their
  * own keys, either directly or indirectly, since that will prevent the keys
  * from being discarded.  Note that a value object may refer indirectly to its
- * key via the <tt>WeakHashMap</tt> itself; that is, a value object may
+ * key via the <tt>AnotherWeakHashMap</tt> itself; that is, a value object may
  * strongly refer to some other key object whose associated value object, in
  * turn, strongly refers to the key of the first value object.  If the values
  * in the map do not rely on the map holding strong references to them, one way
@@ -131,7 +137,7 @@ import org.eclipse.imp.pdb.facts.IValue;
  * @see         java.util.HashMap
  * @see         java.lang.ref.WeakReference
  */
-public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>>
+public class AnotherWeakHashMap<K,V>
     extends AbstractMap<K,V>
     implements Map<K,V> {
 
@@ -178,7 +184,7 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
     private final ReferenceQueue<Object> queue = new ReferenceQueue<>();
 
     /**
-     * The number of times this WeakHashMap has been structurally modified.
+     * The number of times this AnotherWeakHashMap has been structurally modified.
      * Structural modifications are those that change the number of
      * mappings in the map or otherwise modify its internal structure
      * (e.g., rehash).  This field is used to make iterators on
@@ -188,77 +194,17 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
      */
     int modCount;
 
-    /**
-     * The default threshold of map capacity above which alternative hashing is
-     * used for String keys. Alternative hashing reduces the incidence of
-     * collisions due to weak hash code calculation for String keys.
-     * <p/>
-     * This value may be overridden by defining the system property
-     * {@code jdk.map.althashing.threshold}. A property value of {@code 1}
-     * forces alternative hashing to be used at all times whereas
-     * {@code -1} value ensures that alternative hashing is never used.
-     */
-    static final int ALTERNATIVE_HASHING_THRESHOLD_DEFAULT = Integer.MAX_VALUE;
-
-    /**
-     * holds values which can't be initialized until after VM is booted.
-     */
-    private static class Holder {
-
-        /**
-         * Table capacity above which to switch to use alternative hashing.
-         */
-        static final int ALTERNATIVE_HASHING_THRESHOLD;
-
-        static {
-            String altThreshold = java.security.AccessController.doPrivileged(
-                new sun.security.action.GetPropertyAction(
-                    "jdk.map.althashing.threshold"));
-
-            int threshold;
-            try {
-                threshold = (null != altThreshold)
-                        ? Integer.parseInt(altThreshold)
-                        : ALTERNATIVE_HASHING_THRESHOLD_DEFAULT;
-
-                // disable alternative hashing if -1
-                if (threshold == -1) {
-                    threshold = Integer.MAX_VALUE;
-                }
-
-                if (threshold < 0) {
-                    throw new IllegalArgumentException("value must be positive integer.");
-                }
-            } catch(IllegalArgumentException failed) {
-                throw new Error("Illegal value for 'jdk.map.althashing.threshold'", failed);
-            }
-            ALTERNATIVE_HASHING_THRESHOLD = threshold;
-        }
-    }
-
-    /**
-     * If {@code true} then perform alternate hashing to reduce the incidence of
-     * collisions due to weak hash code calculation.
-     */
-    transient boolean useAltHashing;
-
-    /**
-     * A randomizing value associated with this instance that is applied to
-     * hash code of keys to make hash collisions harder to find.
-     */
-    transient final int hashSeed = sun.misc.Hashing.randomHashSeed(this);
-
     @SuppressWarnings("unchecked")
     private Entry<K,V>[] newTable(int n) {
-        return (Entry<K,V>[]) new Entry[n];
+        return (Entry<K,V>[]) new Entry<?,?>[n];
     }
 
     /**
-     * Constructs a new, empty <tt>WeakHashMap</tt> with the given initial
+     * Constructs a new, empty <tt>AnotherWeakHashMap</tt> with the given initial
      * capacity and the given load factor.
      *
-     * @param  initialCapacity The initial capacity of the <tt>WeakHashMap</tt>
-     * @param  loadFactor      The load factor of the <tt>WeakHashMap</tt>
+     * @param  initialCapacity The initial capacity of the <tt>AnotherWeakHashMap</tt>
+     * @param  loadFactor      The load factor of the <tt>AnotherWeakHashMap</tt>
      * @throws IllegalArgumentException if the initial capacity is negative,
      *         or if the load factor is nonpositive.
      */
@@ -278,15 +224,13 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
         table = newTable(capacity);
         this.loadFactor = loadFactor;
         threshold = (int)(capacity * loadFactor);
-        useAltHashing = sun.misc.VM.isBooted() &&
-                (capacity >= Holder.ALTERNATIVE_HASHING_THRESHOLD);
     }
 
     /**
-     * Constructs a new, empty <tt>WeakHashMap</tt> with the given initial
+     * Constructs a new, empty <tt>AnotherWeakHashMap</tt> with the given initial
      * capacity and the default load factor (0.75).
      *
-     * @param  initialCapacity The initial capacity of the <tt>WeakHashMap</tt>
+     * @param  initialCapacity The initial capacity of the <tt>AnotherWeakHashMap</tt>
      * @throws IllegalArgumentException if the initial capacity is negative
      */
     public AnotherWeakHashMap(int initialCapacity) {
@@ -294,7 +238,7 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
     }
 
     /**
-     * Constructs a new, empty <tt>WeakHashMap</tt> with the default initial
+     * Constructs a new, empty <tt>AnotherWeakHashMap</tt> with the default initial
      * capacity (16) and load factor (0.75).
      */
     public AnotherWeakHashMap() {
@@ -302,8 +246,8 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
     }
 
     /**
-     * Constructs a new <tt>WeakHashMap</tt> with the same mappings as the
-     * specified map.  The <tt>WeakHashMap</tt> is created with the default
+     * Constructs a new <tt>AnotherWeakHashMap</tt> with the same mappings as the
+     * specified map.  The <tt>AnotherWeakHashMap</tt> is created with the default
      * load factor (0.75) and an initial capacity sufficient to hold the
      * mappings in the specified map.
      *
@@ -354,9 +298,8 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
      * otherwise encounter collisions for hashCodes that do not differ
      * in lower bits.
      */
-    int hash(IValue k) {
-
-        int h = k.fixedHashCode();
+    final int hash(Object k) {
+        int h = k.hashCode();
 
         // This function ensures that hashCodes that differ only by
         // constant multiples at each bit position have a bounded
@@ -454,7 +397,7 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
      */
     public V get(Object key) {
         Object k = maskNull(key);
-        int h = hash((IValue) k);
+        int h = hash(k);
         Entry<K,V>[] tab = getTable();
         int index = indexFor(h, tab.length);
         Entry<K,V> e = tab[index];
@@ -484,7 +427,7 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
      */
     Entry<K,V> getEntry(Object key) {
         Object k = maskNull(key);
-        int h = hash((IValue) k);
+        int h = hash(k);
         Entry<K,V>[] tab = getTable();
         int index = indexFor(h, tab.length);
         Entry<K,V> e = tab[index];
@@ -507,7 +450,7 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
      */
     public V put(K key, V value) {
         Object k = maskNull(key);
-        int h = hash((IValue) k);
+        int h = hash(k);
         Entry<K,V>[] tab = getTable();
         int i = indexFor(h, tab.length);
 
@@ -551,11 +494,7 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
         }
 
         Entry<K,V>[] newTable = newTable(newCapacity);
-        boolean oldAltHashing = useAltHashing;
-        useAltHashing |= sun.misc.VM.isBooted() &&
-                (newCapacity >= Holder.ALTERNATIVE_HASHING_THRESHOLD);
-        boolean rehash = oldAltHashing ^ useAltHashing;
-        transfer(oldTable, newTable, rehash);
+        transfer(oldTable, newTable);
         table = newTable;
 
         /*
@@ -567,13 +506,13 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
             threshold = (int)(newCapacity * loadFactor);
         } else {
             expungeStaleEntries();
-            transfer(newTable, oldTable, false);
+            transfer(newTable, oldTable);
             table = oldTable;
         }
     }
 
     /** Transfers all entries from src to dest tables */
-    private void transfer(Entry<K,V>[] src, Entry<K,V>[] dest, boolean rehash) {
+    private void transfer(Entry<K,V>[] src, Entry<K,V>[] dest) {
         for (int j = 0; j < src.length; ++j) {
             Entry<K,V> e = src[j];
             src[j] = null;
@@ -585,9 +524,6 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
                     e.value = null; //  "   "
                     size--;
                 } else {
-                    if (rehash) {
-                        e.hash = hash((IValue) key);
-                    }
                     int i = indexFor(e.hash, dest.length);
                     e.next = dest[i];
                     dest[i] = e;
@@ -656,7 +592,7 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
      */
     public V remove(Object key) {
         Object k = maskNull(key);
-        int h = hash((IValue) k);
+        int h = hash(k);
         Entry<K,V>[] tab = getTable();
         int i = indexFor(h, tab.length);
         Entry<K,V> prev = tab[i];
@@ -687,7 +623,7 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
         Entry<K,V>[] tab = getTable();
         Map.Entry<?,?> entry = (Map.Entry<?,?>)o;
         Object k = maskNull(entry.getKey());
-        int h = hash((IValue) k);
+        int h = hash(k);
         int i = indexFor(h, tab.length);
         Entry<K,V> prev = tab[i];
         Entry<K,V> e = prev;
@@ -769,7 +705,7 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
      */
     private static class Entry<K,V> extends WeakReference<Object> implements Map.Entry<K,V> {
         V value;
-        int hash;
+        final int hash;
         Entry<K,V> next;
 
         /**
@@ -817,8 +753,7 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
         public int hashCode() {
             K k = getKey();
             V v = getValue();
-            return ((k==null ? 0 : k.hashCode()) ^
-                    (v==null ? 0 : v.hashCode()));
+            return Objects.hashCode(k) ^ Objects.hashCode(v);
         }
 
         public String toString() {
@@ -828,21 +763,21 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
 
     private abstract class HashIterator<T> implements Iterator<T> {
         private int index;
-        private Entry<K,V> entry = null;
-        private Entry<K,V> lastReturned = null;
+        private Entry<K,V> entry;
+        private Entry<K,V> lastReturned;
         private int expectedModCount = modCount;
 
         /**
          * Strong reference needed to avoid disappearance of key
          * between hasNext and next
          */
-        private Object nextKey = null;
+        private Object nextKey;
 
         /**
          * Strong reference needed to avoid disappearance of key
          * between nextEntry() and any use of the entry
          */
-        private Object currentKey = null;
+        private Object currentKey;
 
         HashIterator() {
             index = isEmpty() ? 0 : table.length;
@@ -917,7 +852,7 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
 
     // Views
 
-    private transient Set<Map.Entry<K,V>> entrySet = null;
+    private transient Set<Map.Entry<K,V>> entrySet;
 
     /**
      * Returns a {@link Set} view of the keys contained in this map.
@@ -933,7 +868,9 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
      * operations.
      */
     public Set<K> keySet() {
-    	throw new UnsupportedOperationException();
+//        Set<K> ks = keySet;
+//        return (ks != null ? ks : (keySet = new KeySet()));
+    	return new KeySet();
     }
 
     private class KeySet extends AbstractSet<K> {
@@ -951,7 +888,7 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
 
         public boolean remove(Object o) {
             if (containsKey(o)) {
-            	AnotherWeakHashMap.this.remove(o);
+                AnotherWeakHashMap.this.remove(o);
                 return true;
             }
             else
@@ -959,7 +896,11 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
         }
 
         public void clear() {
-        	AnotherWeakHashMap.this.clear();
+            AnotherWeakHashMap.this.clear();
+        }
+
+        public Spliterator<K> spliterator() {
+            return new KeySpliterator<>(AnotherWeakHashMap.this, 0, -1, 0, 0);
         }
     }
 
@@ -977,7 +918,9 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
      * support the <tt>add</tt> or <tt>addAll</tt> operations.
      */
     public Collection<V> values() {
-    	throw new UnsupportedOperationException();
+//        Collection<V> vs = values;
+//        return (vs != null) ? vs : (values = new Values());
+    	return new Values();
     }
 
     private class Values extends AbstractCollection<V> {
@@ -994,7 +937,11 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
         }
 
         public void clear() {
-        	AnotherWeakHashMap.this.clear();
+            AnotherWeakHashMap.this.clear();
+        }
+
+        public Spliterator<V> spliterator() {
+            return new ValueSpliterator<>(AnotherWeakHashMap.this, 0, -1, 0, 0);
         }
     }
 
@@ -1039,7 +986,7 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
         }
 
         public void clear() {
-        	AnotherWeakHashMap.this.clear();
+            AnotherWeakHashMap.this.clear();
         }
 
         private List<Map.Entry<K,V>> deepCopy() {
@@ -1056,5 +1003,335 @@ public class AnotherWeakHashMap<K extends IValue,V extends WeakReference<IValue>
         public <T> T[] toArray(T[] a) {
             return deepCopy().toArray(a);
         }
+
+        public Spliterator<Map.Entry<K,V>> spliterator() {
+            return new EntrySpliterator<>(AnotherWeakHashMap.this, 0, -1, 0, 0);
+        }
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void forEach(BiConsumer<? super K, ? super V> action) {
+        Objects.requireNonNull(action);
+        int expectedModCount = modCount;
+
+        Entry<K, V>[] tab = getTable();
+        for (Entry<K, V> entry : tab) {
+            while (entry != null) {
+                Object key = entry.get();
+                if (key != null) {
+                    action.accept((K)AnotherWeakHashMap.unmaskNull(key), entry.value);
+                }
+                entry = entry.next;
+
+                if (expectedModCount != modCount) {
+                    throw new ConcurrentModificationException();
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
+        Objects.requireNonNull(function);
+        int expectedModCount = modCount;
+
+        Entry<K, V>[] tab = getTable();;
+        for (Entry<K, V> entry : tab) {
+            while (entry != null) {
+                Object key = entry.get();
+                if (key != null) {
+                    entry.value = function.apply((K)AnotherWeakHashMap.unmaskNull(key), entry.value);
+                }
+                entry = entry.next;
+
+                if (expectedModCount != modCount) {
+                    throw new ConcurrentModificationException();
+                }
+            }
+        }
+    }
+
+    /**
+     * Similar form as other hash Spliterators, but skips dead
+     * elements.
+     */
+    static class AnotherWeakHashMapSpliterator<K,V> {
+        final AnotherWeakHashMap<K,V> map;
+        AnotherWeakHashMap.Entry<K,V> current; // current node
+        int index;             // current index, modified on advance/split
+        int fence;             // -1 until first use; then one past last index
+        int est;               // size estimate
+        int expectedModCount;  // for comodification checks
+
+        AnotherWeakHashMapSpliterator(AnotherWeakHashMap<K,V> m, int origin,
+                               int fence, int est,
+                               int expectedModCount) {
+            this.map = m;
+            this.index = origin;
+            this.fence = fence;
+            this.est = est;
+            this.expectedModCount = expectedModCount;
+        }
+
+        final int getFence() { // initialize fence and size on first use
+            int hi;
+            if ((hi = fence) < 0) {
+                AnotherWeakHashMap<K,V> m = map;
+                est = m.size();
+                expectedModCount = m.modCount;
+                hi = fence = m.table.length;
+            }
+            return hi;
+        }
+
+        public final long estimateSize() {
+            getFence(); // force init
+            return (long) est;
+        }
+    }
+
+    static final class KeySpliterator<K,V>
+        extends AnotherWeakHashMapSpliterator<K,V>
+        implements Spliterator<K> {
+        KeySpliterator(AnotherWeakHashMap<K,V> m, int origin, int fence, int est,
+                       int expectedModCount) {
+            super(m, origin, fence, est, expectedModCount);
+        }
+
+        public KeySpliterator<K,V> trySplit() {
+            int hi = getFence(), lo = index, mid = (lo + hi) >>> 1;
+            return (lo >= mid) ? null :
+                new KeySpliterator<K,V>(map, lo, index = mid, est >>>= 1,
+                                        expectedModCount);
+        }
+
+        public void forEachRemaining(Consumer<? super K> action) {
+            int i, hi, mc;
+            if (action == null)
+                throw new NullPointerException();
+            AnotherWeakHashMap<K,V> m = map;
+            AnotherWeakHashMap.Entry<K,V>[] tab = m.table;
+            if ((hi = fence) < 0) {
+                mc = expectedModCount = m.modCount;
+                hi = fence = tab.length;
+            }
+            else
+                mc = expectedModCount;
+            if (tab.length >= hi && (i = index) >= 0 &&
+                (i < (index = hi) || current != null)) {
+                AnotherWeakHashMap.Entry<K,V> p = current;
+                current = null; // exhaust
+                do {
+                    if (p == null)
+                        p = tab[i++];
+                    else {
+                        Object x = p.get();
+                        p = p.next;
+                        if (x != null) {
+                            @SuppressWarnings("unchecked") K k =
+                                (K) AnotherWeakHashMap.unmaskNull(x);
+                            action.accept(k);
+                        }
+                    }
+                } while (p != null || i < hi);
+            }
+            if (m.modCount != mc)
+                throw new ConcurrentModificationException();
+        }
+
+        public boolean tryAdvance(Consumer<? super K> action) {
+            int hi;
+            if (action == null)
+                throw new NullPointerException();
+            AnotherWeakHashMap.Entry<K,V>[] tab = map.table;
+            if (tab.length >= (hi = getFence()) && index >= 0) {
+                while (current != null || index < hi) {
+                    if (current == null)
+                        current = tab[index++];
+                    else {
+                        Object x = current.get();
+                        current = current.next;
+                        if (x != null) {
+                            @SuppressWarnings("unchecked") K k =
+                                (K) AnotherWeakHashMap.unmaskNull(x);
+                            action.accept(k);
+                            if (map.modCount != expectedModCount)
+                                throw new ConcurrentModificationException();
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        public int characteristics() {
+            return Spliterator.DISTINCT;
+        }
+    }
+
+    static final class ValueSpliterator<K,V>
+        extends AnotherWeakHashMapSpliterator<K,V>
+        implements Spliterator<V> {
+        ValueSpliterator(AnotherWeakHashMap<K,V> m, int origin, int fence, int est,
+                         int expectedModCount) {
+            super(m, origin, fence, est, expectedModCount);
+        }
+
+        public ValueSpliterator<K,V> trySplit() {
+            int hi = getFence(), lo = index, mid = (lo + hi) >>> 1;
+            return (lo >= mid) ? null :
+                new ValueSpliterator<K,V>(map, lo, index = mid, est >>>= 1,
+                                          expectedModCount);
+        }
+
+        public void forEachRemaining(Consumer<? super V> action) {
+            int i, hi, mc;
+            if (action == null)
+                throw new NullPointerException();
+            AnotherWeakHashMap<K,V> m = map;
+            AnotherWeakHashMap.Entry<K,V>[] tab = m.table;
+            if ((hi = fence) < 0) {
+                mc = expectedModCount = m.modCount;
+                hi = fence = tab.length;
+            }
+            else
+                mc = expectedModCount;
+            if (tab.length >= hi && (i = index) >= 0 &&
+                (i < (index = hi) || current != null)) {
+                AnotherWeakHashMap.Entry<K,V> p = current;
+                current = null; // exhaust
+                do {
+                    if (p == null)
+                        p = tab[i++];
+                    else {
+                        Object x = p.get();
+                        V v = p.value;
+                        p = p.next;
+                        if (x != null)
+                            action.accept(v);
+                    }
+                } while (p != null || i < hi);
+            }
+            if (m.modCount != mc)
+                throw new ConcurrentModificationException();
+        }
+
+        public boolean tryAdvance(Consumer<? super V> action) {
+            int hi;
+            if (action == null)
+                throw new NullPointerException();
+            AnotherWeakHashMap.Entry<K,V>[] tab = map.table;
+            if (tab.length >= (hi = getFence()) && index >= 0) {
+                while (current != null || index < hi) {
+                    if (current == null)
+                        current = tab[index++];
+                    else {
+                        Object x = current.get();
+                        V v = current.value;
+                        current = current.next;
+                        if (x != null) {
+                            action.accept(v);
+                            if (map.modCount != expectedModCount)
+                                throw new ConcurrentModificationException();
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        public int characteristics() {
+            return 0;
+        }
+    }
+
+    static final class EntrySpliterator<K,V>
+        extends AnotherWeakHashMapSpliterator<K,V>
+        implements Spliterator<Map.Entry<K,V>> {
+        EntrySpliterator(AnotherWeakHashMap<K,V> m, int origin, int fence, int est,
+                       int expectedModCount) {
+            super(m, origin, fence, est, expectedModCount);
+        }
+
+        public EntrySpliterator<K,V> trySplit() {
+            int hi = getFence(), lo = index, mid = (lo + hi) >>> 1;
+            return (lo >= mid) ? null :
+                new EntrySpliterator<K,V>(map, lo, index = mid, est >>>= 1,
+                                          expectedModCount);
+        }
+
+
+        public void forEachRemaining(Consumer<? super Map.Entry<K, V>> action) {
+            int i, hi, mc;
+            if (action == null)
+                throw new NullPointerException();
+            AnotherWeakHashMap<K,V> m = map;
+            AnotherWeakHashMap.Entry<K,V>[] tab = m.table;
+            if ((hi = fence) < 0) {
+                mc = expectedModCount = m.modCount;
+                hi = fence = tab.length;
+            }
+            else
+                mc = expectedModCount;
+            if (tab.length >= hi && (i = index) >= 0 &&
+                (i < (index = hi) || current != null)) {
+                AnotherWeakHashMap.Entry<K,V> p = current;
+                current = null; // exhaust
+                do {
+                    if (p == null)
+                        p = tab[i++];
+                    else {
+                        Object x = p.get();
+                        V v = p.value;
+                        p = p.next;
+                        if (x != null) {
+                            @SuppressWarnings("unchecked") K k =
+                                (K) AnotherWeakHashMap.unmaskNull(x);
+                            action.accept
+                                (new AbstractMap.SimpleImmutableEntry<K,V>(k, v));
+                        }
+                    }
+                } while (p != null || i < hi);
+            }
+            if (m.modCount != mc)
+                throw new ConcurrentModificationException();
+        }
+
+        public boolean tryAdvance(Consumer<? super Map.Entry<K,V>> action) {
+            int hi;
+            if (action == null)
+                throw new NullPointerException();
+            AnotherWeakHashMap.Entry<K,V>[] tab = map.table;
+            if (tab.length >= (hi = getFence()) && index >= 0) {
+                while (current != null || index < hi) {
+                    if (current == null)
+                        current = tab[index++];
+                    else {
+                        Object x = current.get();
+                        V v = current.value;
+                        current = current.next;
+                        if (x != null) {
+                            @SuppressWarnings("unchecked") K k =
+                                (K) AnotherWeakHashMap.unmaskNull(x);
+                            action.accept
+                                (new AbstractMap.SimpleImmutableEntry<K,V>(k, v));
+                            if (map.modCount != expectedModCount)
+                                throw new ConcurrentModificationException();
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        public int characteristics() {
+            return Spliterator.DISTINCT;
+        }
+    }
+
 }
