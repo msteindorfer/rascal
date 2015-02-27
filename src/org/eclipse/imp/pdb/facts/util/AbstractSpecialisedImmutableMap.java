@@ -34,25 +34,37 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 	}
 
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1) {
-		return new Map1<K, V>(key1, val1);
+//		return new Map1<K, V>(key1, val1);
+		final TransientMap<K, V> tmp = TrieMap.transientOf(key1, val1);
+		return tmp.freeze();
 	}
 
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2) {
-		return new Map2<K, V>(key1, val1, key2, val2);
+//		return new Map2<K, V>(key1, val1, key2, val2);
+		final TransientMap<K, V> tmp = TrieMap.transientOf(key1, val1, key2, val2);
+		return tmp.freeze();
 	}
 
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3) {
-		return new Map3<K, V>(key1, val1, key2, val2, key3, val3);
+//		return new Map3<K, V>(key1, val1, key2, val2, key3, val3);
+		final TransientMap<K, V> tmp = TrieMap.transientOf(key1, val1, key2, val2, key3, val3);
+		return tmp.freeze();
 	}
 
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3,
 					K key4, V val4) {
-		return new Map4<K, V>(key1, val1, key2, val2, key3, val3, key4, val4);
+//		return new Map4<K, V>(key1, val1, key2, val2, key3, val3, key4, val4);
+		final TransientMap<K, V> tmp = TrieMap.transientOf(key1, val1, key2, val2, key3, val3,
+						key4, val4);
+		return tmp.freeze();
 	}
 
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3,
 					K key4, V val4, K key5, V val5) {
-		return new Map5<K, V>(key1, val1, key2, val2, key3, val3, key4, val4, key5, val5);
+//		return new Map5<K, V>(key1, val1, key2, val2, key3, val3, key4, val4, key5, val5);
+		final TransientMap<K, V> tmp = TrieMap.transientOf(key1, val1, key2, val2, key3, val3,
+						key4, val4, key5, val5);
+		return tmp.freeze();
 	}
 
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3,
