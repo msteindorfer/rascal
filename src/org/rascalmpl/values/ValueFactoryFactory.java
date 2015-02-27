@@ -28,15 +28,15 @@ public class ValueFactoryFactory{
 	public final static boolean isSharingEnabled = System.getProperties().containsKey("sharingEnabled");
 	
 	public static IValue intern(final IValue prototype) {
-//		if (isSharingEnabled) {
-//			final WeakReference<IValue> poolObjectReferene = getFromObjectPool(prototype);
+//		if (isSharingEnabled) {			
+//			final WeakReference<IValue> poolObjectReference = objectPool.putIfAbsent(prototype, new WeakReference<>(prototype));
 //
-//			if (poolObjectReferene == null) {
+//			if (poolObjectReference == null) {
 ////				System.out.println("MISS");
-//				putIntoObjectPool(prototype);
+//				// putIntoObjectPool(prototype); // put not necessary any more
 //				return prototype;
 //			} else {
-//				final IValue weaklyReferencedObject = poolObjectReferene.get();
+//				final IValue weaklyReferencedObject = poolObjectReference.get();
 //
 //				if (weaklyReferencedObject != null) {
 ////					System.out.println("HIT");

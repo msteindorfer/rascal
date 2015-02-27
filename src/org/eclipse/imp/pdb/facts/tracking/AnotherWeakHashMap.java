@@ -28,13 +28,12 @@ package org.eclipse.imp.pdb.facts.tracking;
 import java.lang.ref.WeakReference;
 import java.lang.ref.ReferenceQueue;
 import java.util.*;
-import java.util.AbstractMap;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+
+import org.eclipse.imp.pdb.facts.IValue;
 
 
 /**
@@ -299,7 +298,8 @@ public class AnotherWeakHashMap<K,V>
      * in lower bits.
      */
     final int hash(Object k) {
-        int h = k.hashCode();
+    	// int h = k.hashCode();
+    	int h = ((IValue) k).fixedHashCode();
 
         // This function ensures that hashCodes that differ only by
         // constant multiples at each bit position have a bounded
