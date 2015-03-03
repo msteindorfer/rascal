@@ -24,15 +24,15 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.imp.pdb.facts.util.ImmutableMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableJdkMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 public class AnnotatedConstructorFacade implements IConstructor {
 
 	protected final IConstructor content;
-	protected final ImmutableMap<String, IValue> annotations;
+	protected final ImmutableJdkMap<String, IValue> annotations;
 	
-	private AnnotatedConstructorFacade(final IConstructor content, final ImmutableMap<String, IValue> annotations) {
+	private AnnotatedConstructorFacade(final IConstructor content, final ImmutableJdkMap<String, IValue> annotations) {
 		this.content = content;
 		this.annotations = annotations;
 	}
@@ -42,7 +42,7 @@ public class AnnotatedConstructorFacade implements IConstructor {
 		return (IConstructor) org.rascalmpl.values.ValueFactoryFactory.intern(this);
 	}
 	
-	public static IConstructor newAnnotatedConstructorFacade(final IConstructor content, final ImmutableMap<String, IValue> annotations) {
+	public static IConstructor newAnnotatedConstructorFacade(final IConstructor content, final ImmutableJdkMap<String, IValue> annotations) {
 		return new AnnotatedConstructorFacade(content, annotations).intern();
 	}
 
@@ -196,7 +196,7 @@ public class AnnotatedConstructorFacade implements IConstructor {
 
 			@Override
 			protected IConstructor wrap(IConstructor content,
-					ImmutableMap<String, IValue> annotations) {
+					ImmutableJdkMap<String, IValue> annotations) {
 				return newAnnotatedConstructorFacade(content, annotations);
 			}
 		};
@@ -206,7 +206,7 @@ public class AnnotatedConstructorFacade implements IConstructor {
 		return content;
 	}
 
-	public ImmutableMap<String, IValue> getAnnotations() {
+	public ImmutableJdkMap<String, IValue> getAnnotations() {
 		return annotations;
 	}
 	
