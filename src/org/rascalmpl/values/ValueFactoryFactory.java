@@ -24,35 +24,43 @@ import org.eclipse.imp.pdb.facts.tracking.AnotherWeakHashMap;
 import org.eclipse.imp.pdb.facts.tracking.WeakFixedHashCodeHashMap;
 
 public class ValueFactoryFactory{
-
-	public final static boolean isSharingEnabled = System.getProperties().containsKey("sharingEnabled");
 	
-	public static IValue intern(final IValue prototype) {
-//		if (isSharingEnabled) {			
-//			final WeakReference<IValue> poolObjectReference = objectPool.putIfAbsent(prototype, new WeakReference<>(prototype));
-//
-//			if (poolObjectReference == null) {
-////				System.out.println("MISS");
-//				// putIntoObjectPool(prototype); // put not necessary any more
-//				return prototype;
-//			} else {
-//				final IValue weaklyReferencedObject = poolObjectReference.get();
-//
-//				if (weaklyReferencedObject != null) {
-////					System.out.println("HIT");
-//					return weaklyReferencedObject;
-//				} else {
-////					System.out.println("RACE");
-//					putIntoObjectPool(prototype); // TODO: follow-up
-//					return prototype;
-//				}
-//			}
-//		} else {
-			return prototype;
-//		}
+	/*
+	 * Gets overriden by AspectJ advice if weaving is active.
+	 */
+	private static boolean isAspectJWeavingActive() {
+		return false;
 	}
 	
-	final static Map<IValue, WeakReference<IValue>> objectPool = new AnotherWeakHashMap<>();
+	public final static boolean isSharingEnabledWithoutAspectJ = !isAspectJWeavingActive()
+					&& System.getProperties().containsKey("sharingEnabled");
+	
+	public static IValue intern(final IValue prototype) {
+		if (isSharingEnabledWithoutAspectJ) {			
+			final WeakReference<IValue> poolObjectReference = objectPool.putIfAbsent(prototype, new WeakReference<>(prototype));
+
+			if (poolObjectReference == null) {
+				System.out.println("MISS");
+				// putIntoObjectPool(prototype); // put not necessary any more
+				return prototype;
+			} else {
+				final IValue weaklyReferencedObject = poolObjectReference.get();
+
+				if (weaklyReferencedObject != null) {
+					System.out.println("HIT");
+					return weaklyReferencedObject;
+				} else {
+//					System.out.println("RACE");
+					putIntoObjectPool(prototype); // TODO: follow-up
+					return prototype;
+				}
+			}
+		} else {
+			return prototype;
+		}
+	}
+	
+	final static Map<IValue, WeakReference<IValue>> objectPool = new AnotherWeakHashMap<>(262144);
 //	final static WeakFixedHashCodeHashMap<IValue, WeakReference<IValue>> objectPool = new WeakFixedHashCodeHashMap<>();
 	
 	static WeakReference<IValue> getFromObjectPool(IValue prototype) {

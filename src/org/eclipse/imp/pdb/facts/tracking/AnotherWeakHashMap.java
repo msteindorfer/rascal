@@ -287,7 +287,8 @@ public class AnotherWeakHashMap<K,V>
      * default uses Object.equals.
      */
     private static boolean eq(Object x, Object y) {
-        return x == y || x.equals(y);
+        // return x == y || x.equals(y);
+        return x == y || ((IValue) x).equiv(y);
     }
 
     /**

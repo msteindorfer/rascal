@@ -47,7 +47,8 @@ public aspect ObjectLifetimeTracking {
 		if (useStrongObjectPool) {
 			objectPool = new HashMap<>();
 		} else {
-			objectPool = new WeakHashMap<>();
+//			objectPool = new WeakHashMap<>();
+			objectPool = new AnotherWeakHashMap<>(262144);
 		}
 	}
 
@@ -910,4 +911,10 @@ public aspect ObjectLifetimeTracking {
 		
 	}
 
+	pointcut isAspectJWeavingActive() : call(static boolean org.rascalmpl.values.ValueFactoryFactory.isAspectJWeavingActive(..)); 
+	
+	boolean around() : isAspectJWeavingActive() {
+		return true;
+	}
+	
 }
