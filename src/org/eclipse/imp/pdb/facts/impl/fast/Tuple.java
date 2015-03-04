@@ -156,6 +156,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	public boolean equals(Object o){
+		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabledWithoutAspectJ) {			
+			return o == this;
+		}
+		
 		if(o == this) return true;
 		if(o == null) return false;
 		
@@ -175,6 +179,26 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return false;
 	}
 	
+	public boolean equiv(Object o){
+		if(o == this) return true;
+		if(o == null) return false;
+		
+		if(o.getClass() == getClass()){
+			Tuple otherTuple = (Tuple) o;
+			
+			IValue[] otherElements = otherTuple.elements;
+			int nrOfElements = elements.length;
+			if(otherElements.length == nrOfElements){
+				for(int i = nrOfElements - 1; i >= 0; i--){
+					if(otherElements[i] != elements[i]) return false;
+				}
+				return true;
+			}
+		}
+		
+		return false;
+	}
+		
 	@Override
 	public boolean isEqual(IValue value){
 		if (FORWARD_ISEQUAL_TO_EQUALS) {

@@ -225,6 +225,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	public boolean equals(Object o) {
+		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabledWithoutAspectJ) {			
+			return o == this;
+		}
+		
 		if(o == null) return false;
 		if(o == this) return true;
 
@@ -236,6 +240,18 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return false;
 	}
 
+	public boolean equiv(Object o) {
+		if(o == null) return false;
+		if(o == this) return true;
+
+		if(o.getClass() == getClass()){
+			RationalValue other = (RationalValue) o;
+			return (num == other.num) && (denom == other.denom);
+		}
+
+		return false;
+	}	
+	
 	@Override
 	public boolean isEqual(IValue o) {
 		if (FORWARD_ISEQUAL_TO_EQUALS) {

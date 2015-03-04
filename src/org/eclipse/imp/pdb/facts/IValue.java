@@ -49,6 +49,12 @@ public interface IValue  {
      */
     public boolean equals(Object other);
     
+	/**
+	 * Used for maximal sharing validation. Does a shallow equality, where all
+	 * contained IValues are compared via reference equality.
+	 */
+    public boolean equiv(Object other);
+    
     /**
      * Compute logical equality of two values, which means that the data they
      * represent is equal and their types are comparable (one is a sub-type of the other).

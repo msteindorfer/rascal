@@ -374,7 +374,12 @@ public class NodePattern extends AbstractMatchingResult {
     public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
       throw new UnsupportedOperationException();
     }
+
 	@Override
+	public boolean equiv(Object o) {
+		throw new UnsupportedOperationException();
+	}
+    @Override
 	public IValue intern() {
 		throw new UnsupportedOperationException();
 	}

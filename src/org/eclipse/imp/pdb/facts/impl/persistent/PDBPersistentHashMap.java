@@ -128,6 +128,10 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	
 	@Override
 	public boolean equals(Object other) {
+		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabledWithoutAspectJ) {			
+			return other == this;
+		}
+		
 		if (other == this)
 			return true;
 		if (other == null)
@@ -164,6 +168,45 @@ public final class PDBPersistentHashMap extends AbstractMap {
 		
 		return false;
 	}
+	
+	@Override
+	public boolean equiv(Object other) {
+		if (other == this)
+			return true;
+		if (other == null)
+			return false;
+		
+		if (other instanceof PDBPersistentHashMap) {
+			PDBPersistentHashMap that = (PDBPersistentHashMap) other;
+
+			if (this.size() != that.size())
+				return false;
+
+			return content.equals(that.content); // TODO: equiv on trie collection?
+		}
+		
+		if (other instanceof IMap) {
+			IMap that = (IMap) other;
+
+			if (this.getType() != that.getType())
+				return false;
+			
+			if (this.size() != that.size())
+				return false;
+			
+			for (IValue e : that) {
+	            if (!content.containsKey(e)) { // TODO: equiv on IMap operations?
+	                return false;
+	            } else if (content.get(e) != that.get(e)) { // TODO: equiv on IMap operations?
+	            	return false;
+	            }
+			}
+			
+	        return true;			
+		}
+		
+		return false;
+	}	
 	
 	@Override
 	public boolean isEqual(IValue other) {

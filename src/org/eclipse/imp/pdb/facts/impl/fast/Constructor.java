@@ -165,16 +165,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public boolean equals(Object o){
-//		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabled) {			
-//			return o == this;
-//		}
+		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabledWithoutAspectJ) {			
+			return o == this;
+		}
 		
 		if(o == this) return true;
 		if(o == null) return false;
-
-//		if (o.toString().equals("S(S(S(ZERO())))")) {
-//			System.out.println(String.format("Yeah! %d %d", this.hashCode(), o.hashCode()));
-//		}		
 		
 		if(o.getClass() == getClass()){
 			Constructor otherTree = (Constructor) o;
@@ -193,6 +189,29 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		
 		return false;
 	}
+	
+	@Override
+	public boolean equiv(Object o){
+		if(o == this) return true;
+		if(o == null) return false;
+
+		if(o.getClass() == getClass()){
+			Constructor otherTree = (Constructor) o;
+			
+			if(constructorType != otherTree.constructorType) return false;
+			
+			IValue[] otherChildren = otherTree.children;
+			int nrOfChildren = children.length;
+			if(otherChildren.length == nrOfChildren){
+				for(int i = nrOfChildren - 1; i >= 0; i--){
+					if(otherChildren[i] != children[i]) return false;
+				}
+				return true;
+			}
+		}
+		
+		return false;
+	}	
 	
 	@Override
 	public boolean isEqual(IValue value){

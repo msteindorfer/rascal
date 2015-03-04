@@ -122,6 +122,10 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	
 	@Override
 	public boolean equals(Object other) {
+		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabledWithoutAspectJ) {			
+			return other == this;
+		}
+		
 		if (other == this)
 			return true;
 		if (other == null)
@@ -157,6 +161,45 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		
 		return false;
 	}
+
+	@Override
+	public boolean equiv(Object other) {
+		if (other == this)
+			return true;
+		if (other == null)
+			return false;
+		
+		if (other instanceof PDBPersistentHashSet) {
+			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
+
+			if (this.getType() != that.getType())
+				return false;
+			
+			if (this.size() != that.size())
+				return false;
+
+			return content.equals(that.content); // TODO: equiv on trie collection?
+		}
+		
+		if (other instanceof ISet) {
+			ISet that = (ISet) other;
+
+			if (this.getType() != that.getType())
+				return false;
+			
+			if (this.size() != that.size())
+				return false;
+			
+			for (IValue e : that)
+	            if (!content.contains(e)) // TODO: equiv on ISet operations?
+	                return false;
+
+	        return true;			
+		}
+		
+		return false;
+	}
+	
 	
 	@Override
 	public boolean isEqual(IValue other) {

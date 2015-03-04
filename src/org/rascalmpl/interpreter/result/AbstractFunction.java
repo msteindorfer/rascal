@@ -467,6 +467,11 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return false;
 	}
 	
+	@Override
+	public boolean equiv(Object o) {
+		throw new UnsupportedOperationException();
+	}
+	
 	public String getResourceScheme() {
 		return null;
 	}

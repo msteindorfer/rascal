@@ -41,6 +41,11 @@ public class LazyList implements IList, IExternalValue {
 	}
 
 	@Override
+	public boolean equiv(Object o) {
+		throw new UnsupportedOperationException();
+	}	
+	
+	@Override
 	public IValue intern() {
 		throw new UnsupportedOperationException();
 	}

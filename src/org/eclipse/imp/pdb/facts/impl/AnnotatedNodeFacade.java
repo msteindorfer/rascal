@@ -114,9 +114,9 @@ public class AnnotatedNodeFacade implements INode {
 
 	@Override
 	public boolean equals(Object o) {
-//		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabled) {			
-//			return o == this;
-//		}
+		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabledWithoutAspectJ) {			
+			return o == this;
+		}
 		
 		if(o == this) return true;
 		if(o == null) return false;
@@ -131,6 +131,21 @@ public class AnnotatedNodeFacade implements INode {
 		return false;
 	}
 	
+	@Override
+	public boolean equiv(Object o) {
+		if(o == this) return true;
+		if(o == null) return false;
+		
+		if(o.getClass() == getClass()){
+			AnnotatedNodeFacade other = (AnnotatedNodeFacade) o;
+		
+			return (content == other.content) && 							
+							annotations.equals(other.annotations); // TODO: equiv on annotations?
+		}
+		
+		return false;
+	}
+		
 	@Override
 	public boolean isEqual(IValue other) {
 		if (FORWARD_ISEQUAL_TO_EQUALS) {

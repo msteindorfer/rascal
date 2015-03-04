@@ -259,6 +259,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	public boolean equals(Object o){
+		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabledWithoutAspectJ) {			
+			return o == this;
+		}
+		
 		if(o == this) return true;
 		if(o == null) return false;
 		
@@ -277,6 +281,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return false;
 	}
 
+	public boolean equiv(Object o){
+		if(o == this) return true;
+		if(o == null) return false;
+		
+		if(o instanceof List) {
+			List otherList = (List) o;
+			
+			if (getType() != otherList.getType()) return false;
+			
+			if (hashCode != otherList.hashCode) return false;
+			
+			if (listType != otherList.listType) return false;
+			
+			return data.equiv(otherList.data);
+		}
+		
+		return false;
+	}	
+	
 	@Override
 	public boolean isEqual(IValue value){
 		if (FORWARD_ISEQUAL_TO_EQUALS) {

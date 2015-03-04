@@ -501,6 +501,22 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public boolean equals(Object o){
+		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabledWithoutAspectJ) {			
+			return o == this;
+		}
+		
+		if(o == null) return false;
+		else if(o == this) return true;
+		
+		if(o.getClass() == getClass()){
+			IntegerValue otherInteger = (IntegerValue) o;
+			return (value == otherInteger.value);
+		}
+		
+		return false;
+	}
+	
+	public boolean equiv(Object o){
 		if(o == null) return false;
 		else if(o == this) return true;
 		

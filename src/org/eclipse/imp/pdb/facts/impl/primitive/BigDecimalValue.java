@@ -313,6 +313,21 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public boolean equals(Object o){
+		if (org.rascalmpl.values.ValueFactoryFactory.isSharingEnabledWithoutAspectJ) {			
+			return o == this;
+		}
+		
+		if(o == null) return false;
+		
+		if(o.getClass() == getClass()){
+			BigDecimalValue otherDouble = (BigDecimalValue) o;
+			return (value.equals(otherDouble.value));
+		}
+		
+		return false;
+	}
+	
+	public boolean equiv(Object o){
 		if(o == null) return false;
 		
 		if(o.getClass() == getClass()){
