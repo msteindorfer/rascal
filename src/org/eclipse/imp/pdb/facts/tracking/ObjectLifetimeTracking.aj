@@ -40,24 +40,26 @@ public aspect ObjectLifetimeTracking {
 	}
 	
 	static final MemoryMeasurementMode memoryMeasurementMode = MemoryMeasurementMode.DIFF_COUNT;
+
+	final static boolean isRedundancyProfilingEnabled = System.getProperties().containsKey("redundancyProfilingEnabled");
+	
+	final static boolean isSharingEnabled = System.getProperties().containsKey("sharingEnabled");
+
+	final static protected boolean isOrderUnorderedDisabled = System.getProperties().containsKey("orderUnorderedDisabled");	
 	
 	static {
 //		logger.setUseParentHandlers(false);
 	
 		if (useStrongObjectPool) {
 			objectPool = new HashMap<>();
-		} else {
-//			objectPool = new WeakHashMap<>();
-			objectPool = new AnotherWeakHashMap<>(262144);
+		} else {		
+			if(!isRedundancyProfilingEnabled && isSharingEnabled) {
+				objectPool = new AnotherWeakHashMap<>((int) Math.pow(2, 18));
+			} else {
+				objectPool = new WeakHashMap<>();	
+			}
 		}
 	}
-
-	static boolean isRedundancyProfilingEnabled = System.getProperties().containsKey(
-					"redundancyProfilingEnabled");
-	
-	static boolean isSharingEnabled = System.getProperties().containsKey("sharingEnabled");
-
-	final static protected boolean isOrderUnorderedDisabled = System.getProperties().containsKey("orderUnorderedDisabled");
 	
 	public static enum TrackingMode {
 		PROFILE_HASH_SIG,
@@ -111,53 +113,55 @@ public aspect ObjectLifetimeTracking {
 	ObjectLifetimeTracking() throws Exception {
 		System.out.println("Orpheus hijacked Rascal.");
 		
-		outputStream = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream("target/_allocation_relation.bin.gz")), BUF_SIZE);
-		equalsRelationOutputStream = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream("target/_equals_relation.bin.gz")), BUF_SIZE);
-		tagMapOutputStream = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream("target/_tag_map.bin.gz")), BUF_SIZE);
-		
-		// flush collected data to disk.
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			@Override
-			public void run() {				
-				doLog = false;
-				
-				try {
-					outputStream.close();
-					equalsRelationOutputStream.close();
-					tagMapOutputStream.close();
-				} catch (Exception e) {
-					e.printStackTrace();
+		if (isRedundancyProfilingEnabled) {		
+			outputStream = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream("target/_allocation_relation.bin.gz")), BUF_SIZE);
+			equalsRelationOutputStream = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream("target/_equals_relation.bin.gz")), BUF_SIZE);
+			tagMapOutputStream = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream("target/_tag_map.bin.gz")), BUF_SIZE);
+			
+			// flush collected data to disk.
+			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+				@Override
+				public void run() {				
+					doLog = false;
+					
+					try {
+						outputStream.close();
+						equalsRelationOutputStream.close();
+						tagMapOutputStream.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					Path writeFile = Paths.get("target", "_hashAndCacheStatistic.bin.txt");
+					try {
+						Files.write(writeFile, Arrays.asList(
+								"Hash Collisions: " + hashTableCollision,
+								"Hash Collisions Same Reference: " + hashTableSameReferenceCollision,
+								"Cache Hit:  " + cacheHitCount,
+								"Cache Miss: " + cacheMissCount,
+								"Cache Race: " + cacheRaceCount,
+								"Last Count: " + BCITracker.getCount()), Charset.forName("UTF-8"));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					
+					System.out.println("Hash Collisions: " + hashTableCollision);
+					System.out.println("Hash Collisions Same Reference: " + hashTableSameReferenceCollision);
+					System.out.println();
+					System.out.println("Cache Hit:  " + cacheHitCount);
+					System.out.println("Cache Miss: " + cacheMissCount);
+					System.out.println("Cache Race: " + cacheRaceCount);
+					System.out.println("Last Count: " + BCITracker.getCount());
+					
+					/*
+					 * Clean up referenced values to have more heap space for
+					 * serializing data.
+					 */
+					referencedByIValue = null;
+					System.gc();
 				}
-				
-				Path writeFile = Paths.get("target", "_hashAndCacheStatistic.bin.txt");
-				try {
-					Files.write(writeFile, Arrays.asList(
-							"Hash Collisions: " + hashTableCollision,
-							"Hash Collisions Same Reference: " + hashTableSameReferenceCollision,
-							"Cache Hit:  " + cacheHitCount,
-							"Cache Miss: " + cacheMissCount,
-							"Cache Race: " + cacheRaceCount,
-							"Last Count: " + BCITracker.getCount()), Charset.forName("UTF-8"));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				
-				System.out.println("Hash Collisions: " + hashTableCollision);
-				System.out.println("Hash Collisions Same Reference: " + hashTableSameReferenceCollision);
-				System.out.println();
-				System.out.println("Cache Hit:  " + cacheHitCount);
-				System.out.println("Cache Miss: " + cacheMissCount);
-				System.out.println("Cache Race: " + cacheRaceCount);
-				System.out.println("Last Count: " + BCITracker.getCount());
-				
-				/*
-				 * Clean up referenced values to have more heap space for
-				 * serializing data.
-				 */
-				referencedByIValue = null;
-				System.gc();
-			}
-		}));
+			}));
+		}
 		
 		if (isRedundancyProfilingEnabled) {
 			trackNewObjectUnconditionally(null, BoolValue.TRUE, null,
@@ -510,12 +514,14 @@ public aspect ObjectLifetimeTracking {
 		return v1.fixedHashCode();
 	}
 	
+	
 	/**
 	 * Object pool that is used in maximum sharing mode.
 	 */
 	final static Map<Object, WeakReference<Object>> objectPool;
 	static long hashTableCollision = 0;
 	static long hashTableSameReferenceCollision = 0;
+	
 	
 	/*
 	 * equals(..) call tracking in aspect
@@ -911,10 +917,28 @@ public aspect ObjectLifetimeTracking {
 		
 	}
 
+	
 	pointcut isAspectJWeavingActive() : call(static boolean org.rascalmpl.values.ValueFactoryFactory.isAspectJWeavingActive(..)); 
 	
 	boolean around() : isAspectJWeavingActive() {
 		return true;
 	}
 	
+	
+	public static aspect ReplaceEqualsWhenSharing {
+				
+		pointcut optimizeEqualsWhenSharing() : ( 
+			execution(boolean org.eclipse.imp.pdb.facts.IValue+.equals(..)) 
+				&& !execution(boolean org.eclipse.imp.pdb.facts.IExternalValue+.equals(..))
+				&& !execution(boolean org.rascalmpl.interpreter.result.ICallableValue+.equals(..))
+				
+				&& if(!isRedundancyProfilingEnabled && isSharingEnabled)
+			);
+
+		boolean around(Object v1, Object v2) : optimizeEqualsWhenSharing() && target(v1) && args(v2) {		
+			boolean result = (v1 == v2);
+			return result;
+		}
+	}
+		
 }
