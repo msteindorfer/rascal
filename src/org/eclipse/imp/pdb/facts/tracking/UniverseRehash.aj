@@ -4,10 +4,10 @@ public aspect UniverseRehash {
 	
 	public volatile boolean isRehasing;
 	
-	after() : call(* *.resize(..)) {		
+	after() : call(* AnotherWeakHashMap.resize(..)) {		
 		System.out.println("YEP!");
-		isRehasing = true;
+//		isRehasing = true;
 //		proceed();
-		isRehasing = false;
+//		isRehasing = false;
 	}
 }
