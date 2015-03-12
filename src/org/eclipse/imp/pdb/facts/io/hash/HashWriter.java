@@ -64,11 +64,24 @@ public class HashWriter {
 	final static protected WeakIdentityHashMap<IValue, ByteArray> valueToHash = new WeakIdentityHashMap<>();
 	
 	final static protected EqualsEstimateWriter equalsEstimateWriter = new EqualsEstimateWriter();
-	final static protected HashStringWriter hashStringWriter = new HashStringWriter();
 	final static protected ProtocolObjectWriter protoObjectWriter = new ProtocolObjectWriter();
 	
-	final static protected boolean isOrderUnorderedDisabled = System.getProperties().containsKey("orderUnorderedDisabled");
-	final static protected boolean isXORHashingEnabled = System.getProperties().containsKey("XORHashingEnabled");
+//	final protected boolean isOrderUnorderedDisabled = System.getProperties().containsKey("orderUnorderedDisabled");
+//	final protected boolean isXORHashingEnabled = System.getProperties().containsKey("XORHashingEnabled");
+//	
+//	final protected HashStringWriter hashStringWriter = new HashStringWriter();
+	
+	final protected boolean isOrderUnorderedDisabled;
+	final protected boolean isXORHashingEnabled;	
+	final protected HashStringWriter hashStringWriter;
+	
+	public HashWriter(boolean isOrderUnorderedDisabled, boolean isXORHashingEnabled) {
+		this.isOrderUnorderedDisabled = isOrderUnorderedDisabled;
+		this.isXORHashingEnabled = isXORHashingEnabled;
+		
+		this.hashStringWriter = new HashStringWriter(isOrderUnorderedDisabled, isXORHashingEnabled);
+	}
+	
 	
 	public static byte[] toHashByteArray(IValue value) {
 		return toHashViaGuavaHasher(value);
@@ -229,7 +242,12 @@ public class HashWriter {
 
 	private static class HashStringWriter implements IValueVisitor<ByteArray, IOException> {
 		
-		public HashStringWriter() {
+		final protected boolean isOrderUnorderedDisabled;
+		final protected boolean isXORHashingEnabled;	
+		
+		public HashStringWriter(boolean isOrderUnorderedDisabled, boolean isXORHashingEnabled) {
+			this.isOrderUnorderedDisabled = isOrderUnorderedDisabled;
+			this.isXORHashingEnabled = isXORHashingEnabled;
 		}
 
 		public ByteArray visitBoolean(IBool o) throws IOException {

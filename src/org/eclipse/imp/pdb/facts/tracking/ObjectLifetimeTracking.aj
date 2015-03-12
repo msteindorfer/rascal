@@ -20,6 +20,8 @@ import java.util.zip.GZIPOutputStream;
 import nl.cwi.swat.BCITracker;
 
 import org.aspectj.lang.JoinPoint;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.primitive.BoolValue;
 import org.eclipse.imp.pdb.facts.io.hash.HashWriter;
@@ -45,7 +47,11 @@ public aspect ObjectLifetimeTracking {
 	
 	final static boolean isSharingEnabled = System.getProperties().containsKey("sharingEnabled");
 
-	final static protected boolean isOrderUnorderedDisabled = System.getProperties().containsKey("orderUnorderedDisabled");	
+	final static boolean isOrderUnorderedDisabled = System.getProperties().containsKey("orderUnorderedDisabled");	
+
+	final static boolean isXORHashingEnabled = System.getProperties().containsKey("XORHashingEnabled");
+	
+	final static boolean isOrderedVersusUnorderdBisimulationEnabled = false; // System.getProperties().containsKey("OrderedVersusUnorderdBisimulationEnabled");
 	
 	static {
 //		logger.setUseParentHandlers(false);
@@ -74,9 +80,13 @@ public aspect ObjectLifetimeTracking {
 	
 	static WeakIdentityHashMap<Object, Object> referencedByIValue = new WeakIdentityHashMap<>();
 
-	static HashWriter hashWriter = new HashWriter();
-		
 	
+	
+	static HashWriter hashWriter = new HashWriter(isOrderUnorderedDisabled, isXORHashingEnabled);
+	static HashWriter unorderedHashWriter = new HashWriter(true, false);
+
+	
+		
 	volatile boolean doLog = true;
 
 	static final boolean logCacheBehavior = false;
@@ -95,6 +105,8 @@ public aspect ObjectLifetimeTracking {
 	static long cacheMissCount = 0;
 	static long cacheRaceCount = 0;
 	
+	static long orderedVsUnorderdHashCalculationCount = 0;
+	static long orderedVsUnorderdHashesAreMatchingCount = 0;
 	
 	public static enum EqualsOnAliasMode {
 		EMIT_WARNING,
@@ -140,7 +152,9 @@ public aspect ObjectLifetimeTracking {
 								"Cache Hit:  " + cacheHitCount,
 								"Cache Miss: " + cacheMissCount,
 								"Cache Race: " + cacheRaceCount,
-								"Last Count: " + BCITracker.getCount()), Charset.forName("UTF-8"));
+								"Last Count: " + BCITracker.getCount(),
+								"Ordered Vs Unordered Hash Calculations: " + orderedVsUnorderdHashCalculationCount,
+								"Ordered Vs Unordered Hashes Are Equal:  " + orderedVsUnorderdHashesAreMatchingCount), Charset.forName("UTF-8"));
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -152,6 +166,8 @@ public aspect ObjectLifetimeTracking {
 					System.out.println("Cache Miss: " + cacheMissCount);
 					System.out.println("Cache Race: " + cacheRaceCount);
 					System.out.println("Last Count: " + BCITracker.getCount());
+					System.out.println("Ordered Vs Unordered Hash Calculations: " + orderedVsUnorderdHashCalculationCount);
+					System.out.println("Ordered Vs Unordered Hashes Are Equal:  " + orderedVsUnorderdHashesAreMatchingCount);
 					
 					/*
 					 * Clean up referenced values to have more heap space for
@@ -309,6 +325,15 @@ public aspect ObjectLifetimeTracking {
 		objectPool.put(prototype, new WeakReference<>(prototype));
 	}	
 	
+	static class OrderedAndUnorderedHashPair {
+		public byte[] orderdDigest;
+		public byte[] unorderdDigest;
+		
+		boolean areHashesEqual() {
+			return Arrays.equals(orderdDigest, unorderdDigest);
+		}
+	}
+	
 	void trackNewObjectUnconditionally(JoinPoint.StaticPart sjp, final Object newObject, final Object oldObject, final long eventTimestamp, final boolean isRedundant) {
 		if (doLog) {		
 			BCITracker.setTag(newObject, eventTimestamp);
@@ -322,6 +347,8 @@ public aspect ObjectLifetimeTracking {
 			final TrackingProtocolBuffers.TagMap.Builder tagInfoBldr = 
 					TrackingProtocolBuffers.TagMap.newBuilder()
 						.setTag(eventTimestamp);
+			
+			final OrderedAndUnorderedHashPair orderedAndUnorderedHashPair = new OrderedAndUnorderedHashPair(); 
 			
 			/*
 			 * Digest Calculation (Expensive)
@@ -340,6 +367,9 @@ public aspect ObjectLifetimeTracking {
 						case PROFILE_HASH_SIG:
 							// hash calculation based on hashes of contained elements
 							digest = hashWriter.calculateHash((IValue) newObject);
+							
+							// experimentel
+							orderedAndUnorderedHashPair.orderdDigest = digest;
 							break;
 							
 						case PROFILE_FULL_SIG:
@@ -356,6 +386,16 @@ public aspect ObjectLifetimeTracking {
 					allocationRecBldr.setDigest(toHexString(digest));
 				}
 			};
+			
+			final Runnable unorderedDigestCalculationTask = new Runnable() {
+				@Override
+				public void run() {
+					byte[] digest = unorderedHashWriter.calculateHash((IValue) newObject);
+
+					// experimentel
+					orderedAndUnorderedHashPair.unorderdDigest = digest;
+				}
+			};			
 
 			/*		
 			 * Measure Additional Memory Consumption (Expensive and Memory Intensive)
@@ -378,7 +418,16 @@ public aspect ObjectLifetimeTracking {
 				
 				allocationRecBldr.setRecursiveReferenceEqualitiesEstimate(
 						hashWriter.estimateReferenceEqualities((IValue) newObject));
-			}				
+			
+				// TODO: remove dependency to IValue interfcases; only needed for evaluation
+				if (isOrderedVersusUnorderdBisimulationEnabled && (newObject instanceof ISet || newObject instanceof IMap)) {
+					unorderedDigestCalculationTask.run();
+
+					orderedVsUnorderdHashCalculationCount++;
+					if (orderedAndUnorderedHashPair.areHashesEqual())
+						orderedVsUnorderdHashesAreMatchingCount++;
+				}			
+			}		
 				
 			// Serialize to file 
 			try {
