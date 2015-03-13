@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
 
 import nl.cwi.swat.BCITracker;
+import objectexplorer.ObjectSerializer;
 
 import org.aspectj.lang.JoinPoint;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -28,6 +29,8 @@ import org.eclipse.imp.pdb.facts.io.hash.HashWriter;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 
 public aspect ObjectLifetimeTracking {
 
@@ -387,13 +390,17 @@ public aspect ObjectLifetimeTracking {
 				}
 			};
 			
-			final Runnable unorderedDigestCalculationTask = new Runnable() {
+			final Runnable oepDigestCalculationTask = new Runnable() {
 				@Override
 				public void run() {
-					byte[] digest = unorderedHashWriter.calculateHash((IValue) newObject);
-
+					final String oepObjectGraph = ObjectSerializer.measure(newObject);
+					
+					final HashFunction hashFunc = Hashing.sha256();
+					final byte[] digest = hashFunc.hashBytes(oepObjectGraph.getBytes()).asBytes();					
+					
 					// experimentel
-					orderedAndUnorderedHashPair.unorderdDigest = digest;
+					allocationRecBldr.setOepDigest(toHexString(digest));
+					// allocationRecBldr.setOepObjectGraph(oepObjectGraph); // to much data					
 				}
 			};			
 
@@ -413,20 +420,22 @@ public aspect ObjectLifetimeTracking {
 			if (isSharingEnabled) {
 				memoryCalculationTask.run();	
 			} else {
+				oepDigestCalculationTask.run();
+				
 				digestCalculationTask.run();
 				memoryCalculationTask.run();
 				
 				allocationRecBldr.setRecursiveReferenceEqualitiesEstimate(
 						hashWriter.estimateReferenceEqualities((IValue) newObject));
-			
-				// TODO: remove dependency to IValue interfcases; only needed for evaluation
-				if (isOrderedVersusUnorderdBisimulationEnabled && (newObject instanceof ISet || newObject instanceof IMap)) {
-					unorderedDigestCalculationTask.run();
-
-					orderedVsUnorderdHashCalculationCount++;
-					if (orderedAndUnorderedHashPair.areHashesEqual())
-						orderedVsUnorderdHashesAreMatchingCount++;
-				}			
+				
+//				// TODO: remove dependency to IValue interfcases; only needed for evaluation
+//				if (isOrderedVersusUnorderdBisimulationEnabled && (newObject instanceof ISet || newObject instanceof IMap)) {
+//					unorderedDigestCalculationTask.run();
+//					
+//					orderedVsUnorderdHashCalculationCount++;
+//					if (orderedAndUnorderedHashPair.areHashesEqual())
+//						orderedVsUnorderdHashesAreMatchingCount++;
+//				}
 			}		
 				
 			// Serialize to file 

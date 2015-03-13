@@ -11,6 +11,8 @@ message ObjectLifetime {
 	optional int64 hashTableOverhead = 7;
 	optional bool isRedundant = 8;
 	optional int32 deepReferenceEqualityEstimate = 9;
+	optional string oepDigest = 10;
+	optional string oepObjectGraph = 11;
 }
 
 message EqualsRelation {
