@@ -14,6 +14,7 @@ message ObjectLifetime {
 	optional string oepDigest = 10;
 	optional string oepObjectGraph = 11;
 	optional bool oepIsSuspectForOrderingProblems = 12;
+	optional string classname = 13;
 }
 
 message EqualsRelation {
@@ -31,5 +32,5 @@ message EqualsRelation {
 message TagMap {
 	required int64 tag = 1;
 	required string digest = 2;
-	optional string classname = 3;	
+	optional string classname = 3;
 }

@@ -344,12 +344,13 @@ public aspect ObjectLifetimeTracking {
 			final TrackingProtocolBuffers.ObjectLifetime.Builder allocationRecBldr = 
 					TrackingProtocolBuffers.ObjectLifetime.newBuilder()
 						.setTag(eventTimestamp)
+						.setClassname(newObject.getClass().getCanonicalName())
 						.setIsRedundant(isRedundant && !isOrderUnorderedDisabled)
 						.setCtorTime(eventTimestamp);
 			
-			final TrackingProtocolBuffers.TagMap.Builder tagInfoBldr = 
-					TrackingProtocolBuffers.TagMap.newBuilder()
-						.setTag(eventTimestamp);
+//			final TrackingProtocolBuffers.TagMap.Builder tagInfoBldr = 
+//					TrackingProtocolBuffers.TagMap.newBuilder()
+//						.setTag(eventTimestamp);
 			
 			final OrderedAndUnorderedHashPair orderedAndUnorderedHashPair = new OrderedAndUnorderedHashPair(); 
 			
@@ -401,7 +402,7 @@ public aspect ObjectLifetimeTracking {
 					// experimentel
 					allocationRecBldr.setOepDigest(toHexString(digest));
 					// allocationRecBldr.setOepObjectGraph(oepObjectGraph); // to much data
-					allocationRecBldr.setOepIsSuspectForOrderingProblems(newObject instanceof ISet || newObject instanceof IMap);
+					// allocationRecBldr.setOepIsSuspectForOrderingProblems(newObject instanceof ISet || newObject instanceof IMap);
 				}
 			};			
 
