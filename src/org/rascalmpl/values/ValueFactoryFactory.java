@@ -72,6 +72,6 @@ public class ValueFactoryFactory{
 	}
 		
 	public static IValueFactory getValueFactory(){
-		return org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.getInstance();
+		return org.eclipse.imp.pdb.facts.impl.fast.ValueFactory.getInstance();
 	}
 }
