@@ -341,10 +341,18 @@ public aspect ObjectLifetimeTracking {
 		if (doLog) {		
 			BCITracker.setTag(newObject, eventTimestamp);
 			
+			final String classname;
+			
+			if (newObject.getClass().getCanonicalName() != null) {
+				classname = newObject.getClass().getCanonicalName();
+			} else {
+				classname = "[unknown class name]";
+			}
+			
 			final TrackingProtocolBuffers.ObjectLifetime.Builder allocationRecBldr = 
 					TrackingProtocolBuffers.ObjectLifetime.newBuilder()
 						.setTag(eventTimestamp)
-						.setClassname(newObject.getClass().getCanonicalName())
+						.setClassname(classname)
 						.setIsRedundant(isRedundant && !isOrderUnorderedDisabled)
 						.setCtorTime(eventTimestamp);
 			
