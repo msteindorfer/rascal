@@ -400,7 +400,8 @@ public aspect ObjectLifetimeTracking {
 					
 					// experimentel
 					allocationRecBldr.setOepDigest(toHexString(digest));
-					// allocationRecBldr.setOepObjectGraph(oepObjectGraph); // to much data					
+					// allocationRecBldr.setOepObjectGraph(oepObjectGraph); // to much data
+					allocationRecBldr.setOepIsSuspectForOrderingProblems(newObject instanceof ISet || newObject instanceof IMap);
 				}
 			};			
 

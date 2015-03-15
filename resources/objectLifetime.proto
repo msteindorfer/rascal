@@ -13,6 +13,7 @@ message ObjectLifetime {
 	optional int32 deepReferenceEqualityEstimate = 9;
 	optional string oepDigest = 10;
 	optional string oepObjectGraph = 11;
+	optional bool oepIsSuspectForOrderingProblems = 12;
 }
 
 message EqualsRelation {
