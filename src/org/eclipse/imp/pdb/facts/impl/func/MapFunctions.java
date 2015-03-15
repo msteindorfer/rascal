@@ -185,6 +185,16 @@ public final class MapFunctions {
         return false;
 	}
 	
+	public static IValue get(IValueFactory valueFactory, IMap map1, IValue key) {
+		for (Iterator<Entry<IValue, IValue>> iterator = map1.entryIterator(); iterator.hasNext();) {
+			Entry<IValue, IValue> entry = iterator.next();
+			if (entry.getKey().isEqual(key)) {
+				return entry.getValue();
+			}
+		}
+		return null;
+	}	
+	
 	public static boolean containsKey(IValueFactory valueFactory,
 			IMap map1, IValue key) {
 		for (Iterator<Entry<IValue, IValue>> iterator = map1.entryIterator(); iterator.hasNext();) {
